@@ -7,20 +7,21 @@ const int  WORLD_WIDTH = 2000;
 const int  MAX_NAME_SIZE = 20;
 const int  MAX_USER = 10000;
 const int MAX_CHAT_SIZE = 100;
-const int  MAX_NPC = 200'000;
+const int  MAX_NPC = 100'000;
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
+
 //constexpr int NPC_PLANT = NPC_ID_START + MAX_NPC / 3;
 //constexpr int NPC_MONSTER = MAX_NPC / 3;
 //constexpr int NPC_SECTOR_MONSTER1 = NPC_PLANT + (NPC_MONSTER / 3);
 //constexpr int NPC_SECTOR_MONSTER2 = NPC_SECTOR_MONSTER1 + (NPC_MONSTER / 3);
 //constexpr int NPC_SECTOR_MONSTER3 = NPC_SECTOR_MONSTER2 + (NPC_MONSTER / 3);
 
-constexpr int NPC_PLANT = 140'000;
+constexpr int NPC_PLANT = 40'000;
 constexpr int NPC_MONSTER = MAX_NPC / 3;
-constexpr int NPC_SECTOR_MONSTER1 = 160'000;
-constexpr int NPC_SECTOR_MONSTER2 = 180'000;
-constexpr int NPC_SECTOR_MONSTER3 = 200'000;
+constexpr int NPC_SECTOR_MONSTER1 = 60'000;
+constexpr int NPC_SECTOR_MONSTER2 = 80'000;
+constexpr int NPC_SECTOR_MONSTER3 = 100'000;
 
 //constexpr int NPC_PLANT = NPC_ID_START + MAX_NPC - MAX_NPC / 100;
 //constexpr int NPC_MONSTER = NPC_PLANT + ((MAX_USER + MAX_NPC - NPC_PLANT) - ((MAX_USER + MAX_NPC - NPC_PLANT) / 10));
