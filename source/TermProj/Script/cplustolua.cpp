@@ -229,13 +229,16 @@ int CPP_MonsterAttack(lua_State* L)
 			int sx = player->x / 100;	//sectionX
 			int sy = player->y / 100;	//sectionY
 
-			section_lock[oldsy][oldsx].lock();
-			CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), npc_id), CSection[oldsy][oldsx].end());
-			section_lock[oldsy][oldsx].unlock();
+			if ((oldsy != sy) || (oldsx != sx))
+			{
+				section_lock[oldsy][oldsx].lock();
+				CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), npc_id), CSection[oldsy][oldsx].end());
+				section_lock[oldsy][oldsx].unlock();
 
-			section_lock[sy][sx].lock();
-			CSection[sy][sx].push_back(player->_id);
-			section_lock[sy][sx].unlock();
+				section_lock[sy][sx].lock();
+				CSection[sy][sx].push_back(player->_id);
+				section_lock[sy][sx].unlock();
+			}
 			//------------------------
 
 
@@ -579,14 +582,16 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 	int sx = x / 100;	//sectionX
 	int sy = y / 100;	//sectionY
 
-	section_lock[oldsy][oldsx].lock();
-	CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), npc_id), CSection[oldsy][oldsx].end());
-	section_lock[oldsy][oldsx].unlock();
+	if ((oldsy != sy) || (oldsx != sx))
+	{
+		section_lock[oldsy][oldsx].lock();
+		CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), npc_id), CSection[oldsy][oldsx].end());
+		section_lock[oldsy][oldsx].unlock();
 
-	section_lock[sy][sx].lock();
-	CSection[sy][sx].push_back(npc_id);
-	section_lock[sy][sx].unlock();
-
+		section_lock[sy][sx].lock();
+		CSection[sy][sx].push_back(npc_id);
+		section_lock[sy][sx].unlock();
+	}
 	//unordered_set <int> nearlist;
 	//for (int i = min(0, sx - 1); i < max(20, sx + 1); ++i)
 	//{

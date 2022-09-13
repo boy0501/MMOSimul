@@ -17,7 +17,6 @@ void TimerThread()
 		while (true) {
 			if (triger)
 			{
-
 				if (is_already.exec_time <= chrono::system_clock::now())
 				{
 					if (is_already.type == Timer_Event::TIMER_TYPE::TYPE_NPC_AI)
@@ -111,7 +110,6 @@ void TimerThread()
 				
 			}
 			else {
-
 				if (exec_event.exec_time > chrono::system_clock::now() + 1000ms)
 				{// 기다려야 하는 시간이 1초이상이라면 다른 더 중요한게 이 사이에 들어올 수 있으므로. 1초정도만 기다려줌. 그리고 다시 넣음.
 					timer_queue.push(exec_event);
@@ -122,9 +120,9 @@ void TimerThread()
 					triger = true;
 					break;
 				}
-
 			}
 		}
-		this_thread::sleep_for(chrono::duration_cast<chrono::milliseconds>(is_already.exec_time - chrono::system_clock::now()));
+		this_thread::sleep_for(chrono::duration_cast<chrono::milliseconds>
+			(is_already.exec_time - chrono::system_clock::now()));
 	}
 }

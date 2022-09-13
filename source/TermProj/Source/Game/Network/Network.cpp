@@ -437,14 +437,16 @@ void process_packet(int client_id, unsigned char* p)
 		int sx = x / 100;	//sectionX
 		int sy = y / 100;	//sectionY
 
-		section_lock[oldsy][oldsx].lock();
-		CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), character->_id), CSection[oldsy][oldsx].end());
-		section_lock[oldsy][oldsx].unlock();
+		if ((oldsy != sy) || (oldsx != sx))
+		{
+			section_lock[oldsy][oldsx].lock();
+			CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), character->_id), CSection[oldsy][oldsx].end());
+			section_lock[oldsy][oldsx].unlock();
 
-		section_lock[sy][sx].lock();
-		CSection[sy][sx].push_back(character->_id);
-		section_lock[sy][sx].unlock();
-
+			section_lock[sy][sx].lock();
+			CSection[sy][sx].push_back(character->_id);
+			section_lock[sy][sx].unlock();
+		}
 		unordered_set <int> nearlist;
 		for (int i = max(0, sx - 1); i < min(20, sx + 1); ++i)
 		{
@@ -761,13 +763,16 @@ void process_packet(int client_id, unsigned char* p)
 			int sx = player->x / 100;	//sectionX
 			int sy = player->y / 100;	//sectionY
 
-			section_lock[oldsy][oldsx].lock();
-			CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), player->_id), CSection[oldsy][oldsx].end());
-			section_lock[oldsy][oldsx].unlock();
+			if ((oldsy != sy) || (oldsx != sx))
+			{
+				section_lock[oldsy][oldsx].lock();
+				CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), player->_id), CSection[oldsy][oldsx].end());
+				section_lock[oldsy][oldsx].unlock();
 
-			section_lock[sy][sx].lock();
-			CSection[sy][sx].push_back(character->_id);
-			section_lock[sy][sx].unlock();
+				section_lock[sy][sx].lock();
+				CSection[sy][sx].push_back(character->_id);
+				section_lock[sy][sx].unlock();
+			}
 
 			//기존에 있던 플레이어들에게 나간다고 알려준다.
 			player->vl.lock();
