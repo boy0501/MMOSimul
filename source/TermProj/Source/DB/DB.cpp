@@ -41,7 +41,7 @@ void InitializeDB()
 
 			// Set login timeout to 5 seconds  
 			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
+				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)10, 0);
 
 				// Connect to data source  
 				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"2017182030_2021_GameServer", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);

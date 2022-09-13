@@ -21,6 +21,8 @@ bool mMap[2000][2000];
 
 concurrency::concurrent_priority_queue <Timer_Event> timer_queue;
 std::array<Character*, MAX_USER + MAX_NPC> characters;
+Character* CSection[10][10];
+std::mutex section_lock;
 CRITICAL_SECTION db_cs;
 
 WSA_OVER_EX::WSA_OVER_EX(COMMAND_IOCP cmd, char bytes, void* msg)
