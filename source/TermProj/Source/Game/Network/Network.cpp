@@ -79,6 +79,13 @@ void Disconnect(int _id)
 		}
 		else target->vl.unlock();
 	}
+
+	int sx = cl->x / 100;	//sectionX
+	int sy = cl->y / 100;	//sectionY
+	section_lock[sy][sx].lock();
+	CSection[sy][sx].erase(remove(CSection[sy][sx].begin(), CSection[sy][sx].end(), cl->_id), CSection[sy][sx].end());
+	section_lock[sy][sx].unlock();
+
 	strcpy_s(cl->name, "");
 	cl->state_lock.lock();
 	closesocket(cl->_socket);
