@@ -110,19 +110,19 @@ void TimerThread()
 				
 			}
 			else {
-				if (exec_event.exec_time > chrono::system_clock::now() + 1000ms)
-				{// 기다려야 하는 시간이 1초이상이라면 다른 더 중요한게 이 사이에 들어올 수 있으므로. 1초정도만 기다려줌. 그리고 다시 넣음.
+				if (exec_event.exec_time > chrono::system_clock::now() + 1ms)
+				{
 					timer_queue.push(exec_event);
-					this_thread::sleep_for(1000ms);
+					this_thread::sleep_for(1ms);
 				}
 				else {
 					is_already = exec_event;
 					triger = true;
+					this_thread::sleep_for(chrono::duration_cast<chrono::milliseconds>
+						(is_already.exec_time - chrono::system_clock::now()));
 					break;
 				}
 			}
 		}
-		this_thread::sleep_for(chrono::duration_cast<chrono::milliseconds>
-			(is_already.exec_time - chrono::system_clock::now()));
 	}
 }
