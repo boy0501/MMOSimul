@@ -218,8 +218,32 @@ int CPP_MonsterAttack(lua_State* L)
 			sprintf_s(logbuf, MAX_CHAT_SIZE, "플레이어 사망");
 			send_log_packet(player_id, logbuf);
 			auto player = reinterpret_cast<Player*>(characters[player_id]);
+
+
+			//------------------- add
+			int oldsx = player->x / 100;
+			int oldsy = player->y / 100;
 			player->x = 10;
 			player->y = 10;
+
+			int sx = player->x / 100;	//sectionX
+			int sy = player->y / 100;	//sectionY
+
+			if ((oldsy != sy) || (oldsx != sx))
+			{
+				section_lock[oldsy][oldsx].lock();
+				CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), npc_id), CSection[oldsy][oldsx].end());
+				section_lock[oldsy][oldsx].unlock();
+
+				section_lock[sy][sx].lock();
+				CSection[sy][sx].push_back(player->_id);
+				section_lock[sy][sx].unlock();
+			}
+			//------------------------
+
+
+
+
 			player->hp = player->maxhp;
 			player->exp /= 2;
 			//
@@ -513,6 +537,9 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 	}
 	auto& x = characters[npc_id]->x;
 	auto& y = characters[npc_id]->y;
+
+	int oldsx = x / 100;
+	int oldsy = y / 100;
 	switch (rand() % 4) {
 	case 0:
 		if (y > 0)
@@ -551,6 +578,43 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 		}
 		break;
 	}
+
+	int sx = x / 100;	//sectionX
+	int sy = y / 100;	//sectionY
+
+	if ((oldsy != sy) || (oldsx != sx))
+	{
+		section_lock[oldsy][oldsx].lock();
+		CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), npc_id), CSection[oldsy][oldsx].end());
+		section_lock[oldsy][oldsx].unlock();
+
+		section_lock[sy][sx].lock();
+		CSection[sy][sx].push_back(npc_id);
+		section_lock[sy][sx].unlock();
+	}
+	//unordered_set <int> nearlist;
+	//for (int i = min(0, sx - 1); i < max(20, sx + 1); ++i)
+	//{
+	//	for (int j = min(0, sy - 1); j < max(20, sy + 1); ++j)
+	//	{
+	//		section_lock[j][i].lock();
+	//		vector<int> Sector{ CSection[j][i] };
+	//		section_lock[j][i].unlock();
+
+	//		for (auto other : Sector)
+	//		{
+	//			if (characters[other]->_state != Character::STATE::ST_INGAME)
+	//				continue;
+	//			//if (false == characters[other]->is_player())
+	//			//	break;
+	//			if (true == is_Near(npc_id, other))
+	//				new_viewlist.insert(other);
+	//		}
+	//	}
+	//}
+	// 
+	
+	//-0--------------- npc는 플레이어만 판단하면 되니깐 그렇게 과부하는 안 올듯 ? 
 	for (auto obj : characters) {
 		if (obj->_state != Character::STATE::ST_INGAME)
 			continue;
@@ -559,6 +623,9 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 		if (true == is_Near(npc_id, obj->_id))
 			new_viewlist.insert(obj->_id);
 	}
+	//------------------
+
+
 
 	// 새로 시야에 들어온 플레이어
 	int flag = 0;

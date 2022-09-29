@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include <algorithm>
 #include "Network.h"
 #include "../Object/Character/Character.h"
 #include "../Object/Character/Player/Player.h"
@@ -21,8 +22,8 @@ bool mMap[2000][2000];
 
 concurrency::concurrent_priority_queue <Timer_Event> timer_queue;
 std::array<Character*, MAX_USER + MAX_NPC> characters;
-Character* CSection[10][10];
-std::mutex section_lock;
+vector<int> CSection[20][20];
+std::mutex section_lock[20][20];
 CRITICAL_SECTION db_cs;
 
 WSA_OVER_EX::WSA_OVER_EX(COMMAND_IOCP cmd, char bytes, void* msg)
@@ -310,6 +311,14 @@ void process_packet(int client_id, unsigned char* p)
 		player->exp = p_info.p_exp;
 		player->hp = p_info.p_hp;
 		player->maxhp = p_info.p_maxhp;
+		//-------------------------------------add
+		int sx = player->x / 100;	//sectionX
+		int sy = player->y / 100;	//sectionY
+
+		section_lock[sy][sx].lock();
+		CSection[sy][sx].push_back(character->_id);
+		section_lock[sy][sx].unlock();
+
 		send_login_ok_packet(client_id);
 
 		//5분~10분사이 랜덤하게 auto save
@@ -396,6 +405,8 @@ void process_packet(int client_id, unsigned char* p)
 
 		int x = character->x;
 		int y = character->y;
+		int oldsx = x/100;
+		int oldsy = y/100;
 		switch (packet->direction) {
 		case 0:
 			if (y > 0)
@@ -423,14 +434,56 @@ void process_packet(int client_id, unsigned char* p)
 		}
 		character->x = x;
 		character->y = y;
-		unordered_set <int> nearlist;
-		for (auto other : characters) {
-			if (Character::STATE::ST_INGAME != other->_state)
-				continue;
-			if (false == is_Near(client_id, other->_id))
-				continue;
-			nearlist.insert(other->_id);
+		int sx = x / 100;	//sectionX
+		int sy = y / 100;	//sectionY
+
+		if ((oldsy != sy) || (oldsx != sx))
+		{
+			section_lock[oldsy][oldsx].lock();
+			CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), character->_id), CSection[oldsy][oldsx].end());
+			section_lock[oldsy][oldsx].unlock();
+
+			section_lock[sy][sx].lock();
+			CSection[sy][sx].push_back(character->_id);
+			section_lock[sy][sx].unlock();
 		}
+		unordered_set <int> nearlist;
+		for (int i = max(0, sx - 1); i < min(20, sx + 1); ++i)
+		{
+			for (int j = max(0, sy - 1); j < min(20, sy + 1); ++j)
+			{
+				section_lock[j][i].lock();
+				vector<int> Sector{ CSection[j][i] };
+				section_lock[j][i].unlock();
+
+				for (auto other : Sector)
+				{
+					if (Character::STATE::ST_INGAME != characters[other]->_state)
+						continue;
+					if (false == is_Near(client_id, other))
+						continue;
+					nearlist.insert(other);
+				}				
+			}
+		}
+		
+
+		//for (auto other : Sector[0])
+		//{
+		//	if (Character::STATE::ST_INGAME != other->_state)
+		//		continue;
+		//	if (false == is_Near(client_id, other->_id))
+		//		continue;
+		//	nearlist.insert(other->_id);
+		//}
+
+		//for (auto other : characters) {
+		//	if (Character::STATE::ST_INGAME != other->_state)
+		//		continue;
+		//	if (false == is_Near(client_id, other->_id))
+		//		continue;
+		//	nearlist.insert(other->_id);
+		//}
 
 		send_move_packet(character->_id, character->_id);
 
@@ -701,9 +754,26 @@ void process_packet(int client_id, unsigned char* p)
 			int randy = rand() % 2000;
 			if (mMap[randx][randy] == 1) continue;
 
-
+			//---add
+			int oldsx = player->x /100;
+			int oldsy = player->y / 100;
 			player->x = randx;
 			player->y = randy;
+
+			int sx = player->x / 100;	//sectionX
+			int sy = player->y / 100;	//sectionY
+
+			if ((oldsy != sy) || (oldsx != sx))
+			{
+				section_lock[oldsy][oldsx].lock();
+				CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), player->_id), CSection[oldsy][oldsx].end());
+				section_lock[oldsy][oldsx].unlock();
+
+				section_lock[sy][sx].lock();
+				CSection[sy][sx].push_back(character->_id);
+				section_lock[sy][sx].unlock();
+			}
+
 			//기존에 있던 플레이어들에게 나간다고 알려준다.
 			player->vl.lock();
 			unordered_set<int> LeaveList = player->viewlist;
@@ -828,6 +898,7 @@ void InitNPC()
 		npc->_state = Character::STATE::ST_INGAME;
 
 		characters[i] = npc;
+		CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
 	}
 	cout << "NPC Setting is Done" << endl;
 }

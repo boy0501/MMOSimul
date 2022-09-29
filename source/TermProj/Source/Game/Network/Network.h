@@ -30,6 +30,8 @@ void send_imgupdate_packet(int player_id, int updateCharacter_id);
 void send_buffUpdate_packet(int player_id, int updateCharacter_id);
 
 extern std::array<class Character* ,MAX_USER + MAX_NPC> characters;
+extern std::vector<int> CSection[20][20];
+extern std::mutex section_lock[20][20];
 extern bool mMap[2000][2000];	//0이면 길, 1이면 벽 mMap[x][y]의 형태.
 extern CRITICAL_SECTION db_cs;
 enum COMMAND_IOCP { CMD_ACCEPT,CMD_RECV, CMD_SEND, CMD_NPC_AI,

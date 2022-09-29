@@ -10,6 +10,7 @@ const int MAX_CHAT_SIZE = 100;
 const int  MAX_NPC = 200'000;
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
+
 //constexpr int NPC_PLANT = NPC_ID_START + MAX_NPC / 3;
 //constexpr int NPC_MONSTER = MAX_NPC / 3;
 //constexpr int NPC_SECTOR_MONSTER1 = NPC_PLANT + (NPC_MONSTER / 3);
