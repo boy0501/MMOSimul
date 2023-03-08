@@ -21,6 +21,7 @@ int main()
 	wcout.imbue(locale("korean"));
 	InitializeCriticalSection(&db_cs);
 	InitializeDB();
+	InitMariaDB();
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
 	s_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);

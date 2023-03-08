@@ -10,6 +10,7 @@ extern SQLHDBC hdbc;
 extern SQLHSTMT hstmt;
 void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);
 
+void InitMariaDB();
 void InitializeDB();
 void ReleaseDB();
 int Login(const char* name, LoginInfo& p_info);
