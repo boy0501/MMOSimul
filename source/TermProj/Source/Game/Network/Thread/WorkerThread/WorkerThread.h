@@ -1,4 +1,4 @@
 #pragma once
 #include <WS2tcpip.h>
 
-void WorkerThread();
+void WorkerThread(int thread_id);

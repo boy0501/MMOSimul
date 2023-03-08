@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void WorkerThread()
+void WorkerThread(int thread_id)
 {
 
 	for (;;) {
@@ -49,7 +49,7 @@ void WorkerThread()
 			unsigned char* packets = wsa_ex->getBuf();
 
 			while (To_Process_Bytes >= packets[0]) {
-				process_packet(client_id, packets);
+				process_packet(client_id, packets,thread_id);
 				To_Process_Bytes -= packets[0];
 				packets += packets[0];
 				if (To_Process_Bytes <= 0)break;

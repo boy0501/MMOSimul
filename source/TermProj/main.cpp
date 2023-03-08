@@ -20,7 +20,8 @@ int main()
 	setlocale(LC_ALL, "korean");
 	wcout.imbue(locale("korean"));
 	InitializeCriticalSection(&db_cs);
-	InitializeDB();
+	for(int i = 0; i < 6 ;++i)
+		InitializeDB(henv[i],hdbc[i],hstmt[i]);
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
 	s_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
@@ -57,7 +58,7 @@ int main()
 	vector <thread> worker_threads;
 	thread timer_thread{ TimerThread };
 	for (int i = 0; i < 6; ++i)
-		worker_threads.emplace_back(WorkerThread);
+		worker_threads.emplace_back(WorkerThread,i);
 	for (auto& th : worker_threads)
 		th.join();
 
@@ -68,7 +69,8 @@ int main()
 	}
 
 
-	ReleaseDB();
+	for (int i = 0; i < 6; ++i)
+		ReleaseDB(henv[i], hdbc[i], hstmt[i]);
 	DeleteCriticalSection(&db_cs);
 	closesocket(s_socket);
 	WSACleanup();
