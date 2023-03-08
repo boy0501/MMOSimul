@@ -1,9 +1,9 @@
 #include <string>
 #include "DB.h"
 
-SQLHENV henv[6];
-SQLHDBC hdbc[6];
-SQLHSTMT hstmt[6];
+SQLHENV henv;
+SQLHDBC hdbc;
+SQLHSTMT hstmt;
 
 using namespace std;
 
@@ -26,7 +26,7 @@ void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCod
 		}
 	}
 }
-void InitializeDB(SQLHENV& henv, SQLHDBC& hdbc, SQLHSTMT& hstmt)
+void InitializeDB()
 {
 	SQLRETURN retcode;
 	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
@@ -59,7 +59,7 @@ void InitializeDB(SQLHENV& henv, SQLHDBC& hdbc, SQLHSTMT& hstmt)
 	}
 }
 
-void ReleaseDB(SQLHENV& henv, SQLHDBC& hdbc, SQLHSTMT& hstmt)
+void ReleaseDB()
 {
 	SQLCancel(hstmt);
 	SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
@@ -70,7 +70,7 @@ void ReleaseDB(SQLHENV& henv, SQLHDBC& hdbc, SQLHSTMT& hstmt)
 
 
 
-int Login(const char* name, LoginInfo& p_info,SQLHSTMT& hstmt)
+int Login(const char* name, LoginInfo& p_info)
 {
 	SQLINTEGER p_exp{};
 	SQLSMALLINT p_x{}, p_y{}, p_level{}, p_hp{}, p_maxhp{};
@@ -134,7 +134,7 @@ int Login(const char* name, LoginInfo& p_info,SQLHSTMT& hstmt)
 }
 
 
-int MakeCharacterAndLogin(const char* name, LoginInfo& p_info, SQLHSTMT& hstmt)
+int MakeCharacterAndLogin(const char* name, LoginInfo& p_info)
 {
 	SQLINTEGER p_exp{};
 	SQLSMALLINT p_x{}, p_y{}, p_level{}, p_hp{}, p_maxhp{};
@@ -211,7 +211,7 @@ int MakeCharacterAndLogin(const char* name, LoginInfo& p_info, SQLHSTMT& hstmt)
 
 
 
-void SavePos(const char* name, int x, int y, SQLHSTMT& hstmt)
+void SavePos(const char* name, int x, int y)
 {
 	SQLRETURN retcode;
 

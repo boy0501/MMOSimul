@@ -15,7 +15,7 @@ int Generate_Id();
 void InitNPC();
 void InitMAP();
 void push_queue(int player_id);
-void process_packet(int client_id, unsigned char* p, int thread_id);
+void process_packet(int client_id, unsigned char* p);
 bool is_Near(int character1_id, int character2_id);
 bool is_Near_By_Range(int character1_id, int character2_id, int Range);
 void send_put_object(int player_id, int putCharacter_id,int object_type);

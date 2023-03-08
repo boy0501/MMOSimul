@@ -261,7 +261,7 @@ void send_buffUpdate_packet(int player_id, int updateCharacter_id)
 }
 
 
-void process_packet(int client_id, unsigned char* p, int thread_id)
+void process_packet(int client_id, unsigned char* p)
 {
 	unsigned char packet_type = p[1];
 	Character* character = characters[client_id];
@@ -288,12 +288,12 @@ void process_packet(int client_id, unsigned char* p, int thread_id)
 
 		LoginInfo p_info{};
 		EnterCriticalSection(&db_cs);
-		if (-1 == Login(packet->name, p_info, hstmt[thread_id]))
+		if (-1 == Login(packet->name, p_info))
 		{
 			LeaveCriticalSection(&db_cs);
 			//로그인 실패하면 끊는게아니라, 새롭게 만들어줘야함.
 			EnterCriticalSection(&db_cs);
-			if (-1 == MakeCharacterAndLogin(packet->name, p_info, hstmt[thread_id]))
+			if (-1 == MakeCharacterAndLogin(packet->name, p_info))
 			{
 				LeaveCriticalSection(&db_cs);
 				//여기서도 실패하면 끊어야지 뭐,,
@@ -443,9 +443,9 @@ void process_packet(int client_id, unsigned char* p, int thread_id)
 		character->y = y;
 		int sx = x / 100;	//sectionX
 		int sy = y / 100;	//sectionY
-		LoginInfo tmp;
+		//LoginInfo tmp;
 		//EnterCriticalSection(&db_cs);
-		SavePos(player->name, x, y, hstmt[thread_id]);
+		//SavePos(player->name, x, y, hstmt[thread_id]);
 		//Login(player->name, tmp, hstmt[thread_id]);
 		//LeaveCriticalSection(&db_cs);
 		
