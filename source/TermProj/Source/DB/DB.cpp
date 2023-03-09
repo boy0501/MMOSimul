@@ -49,7 +49,7 @@ void InitMariaDB()
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 
-		sprintf_s(query, 1024, "SELECT * FROM testTbl");
+		sprintf_s(query, 1024, "SELECT * FROM player_data");
 
 		// Send Query
 		if (mysql_query(conn, query))
