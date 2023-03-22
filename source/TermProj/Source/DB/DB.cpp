@@ -1,6 +1,8 @@
 #include <string>
-#include <mysql.h>
 #include "DB.h"
+#include <mysql.h>
+
+//#pragma comment (lib, "libmysql.lib")
 
 SQLHENV henv;
 SQLHDBC hdbc;
