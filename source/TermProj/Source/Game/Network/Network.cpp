@@ -288,7 +288,7 @@ void process_packet(int client_id, unsigned char* p)
 
 		LoginInfo p_info{};
 		EnterCriticalSection(&db_cs);
-		if (-1 == Login(packet->name, p_info))
+		if (-1 == Login(packet->name, packet->pw, p_info))
 		{
 			LeaveCriticalSection(&db_cs);
 			//로그인 실패하면 끊는게아니라, 새롭게 만들어줘야함.

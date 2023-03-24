@@ -554,12 +554,13 @@ void send_move_packet(char dr)
 	socket.send(&packet, sizeof(packet), sent);
 }
 
-void send_login_packet(string& name)
+void send_login_packet(string& name, string& pw)
 {
 	cs_packet_login packet;
 	packet.size = sizeof(packet);
 	packet.type = CS_PACKET_LOGIN;
 	strcpy_s(packet.name, name.c_str());
+	strcpy_s(packet.pw, pw.c_str());
 	size_t sent = 0;
 	socket.send(&packet, sizeof(packet), sent);
 }
@@ -573,7 +574,8 @@ int main()
 	string name{ "PL" };
 	cout << "Id ют╥б :";
 	cin >> name;
-	cout << name;
+	string pw{ "" };
+	cin >> pw;
 
 	sf::Socket::Status status = socket.connect(ip.c_str(), SERVER_PORT);
 
@@ -591,7 +593,7 @@ int main()
 	//		time_since_epoch()).count();
 	//name += to_string(tt % 1000);
 
-	send_login_packet(name);
+	send_login_packet(name,pw);
 	avatar.set_name(name.c_str());
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "2D CLIENT");
 	g_window = &window;
