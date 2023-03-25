@@ -80,6 +80,7 @@ struct Timer_Event {
 
 struct LoginInfo {
 	char p_name[20];
+	char p_pw[20];
 	short p_x;
 	short p_y;
 	short p_level;

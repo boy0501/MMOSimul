@@ -293,7 +293,7 @@ void process_packet(int client_id, unsigned char* p)
 			LeaveCriticalSection(&db_cs);
 			//로그인 실패하면 끊는게아니라, 새롭게 만들어줘야함.
 			EnterCriticalSection(&db_cs);
-			if (-1 == MakeCharacterAndLogin(packet->name, p_info))
+			if (-1 == MakeCharacterAndLogin(packet->name,packet->pw, p_info))
 			{
 				LeaveCriticalSection(&db_cs);
 				//여기서도 실패하면 끊어야지 뭐,,
