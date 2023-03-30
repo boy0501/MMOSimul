@@ -569,11 +569,12 @@ int main()
 {
 	wcout.imbue(locale("korean"));
 	string ip{ "" };
-	cout << "ip 입력 :" << endl;
+	cout << "ip 입력 :";
 	cin >> ip;
 	string name{ "PL" };
-	cout << "Id 입력 :";
+	cout << "id 입력 :";
 	cin >> name;
+	cout << "pw 입력 :";
 	string pw{ "" };
 	cin >> pw;
 

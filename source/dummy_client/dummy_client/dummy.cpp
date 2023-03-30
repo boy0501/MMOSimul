@@ -317,6 +317,7 @@ void Adjust_Number_Of_Client()
 
 	int temp = num_connections;
 	sprintf_s(l_packet.name, "%d", temp);
+	sprintf_s(l_packet.pw, "%s", "1234");
 	l_packet.size = sizeof(l_packet);
 	l_packet.type = CS_PACKET_LOGIN;
 	SendPacket(num_connections, &l_packet);

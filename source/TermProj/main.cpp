@@ -20,6 +20,7 @@ int main()
 	setlocale(LC_ALL, "korean");
 	wcout.imbue(locale("korean"));
 	InitializeCriticalSection(&db_cs);
+	//mysqlTestCode();
 	InitializeDB();
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);

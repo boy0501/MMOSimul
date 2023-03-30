@@ -191,7 +191,7 @@ void HowtoOUTparamForStoredProcedure(MYSQL* hmysql)
 	mysql_free_result(result);
 
 
-	sprintf_s(query, 1024, "select @param3", id.c_str(), pw.c_str());
+	sprintf_s(query, 1024, "select @param3", id.c_str());
 	if (mysql_query(hmysql, query))
 	{
 		cout << "SELECT Fail" << endl;
@@ -218,7 +218,7 @@ void HowtoOUTparamForStoredProcedure(MYSQL* hmysql)
 	mysql_free_result(result);
 }
 
-void InitializeDB()
+void mysqlTestCode()
 {
 	//MYSQL* hmysql;
 	MYSQL* conn_result;
@@ -226,7 +226,7 @@ void InitializeDB()
 
 	hmysql = mysql_init(NULL);
 	mysql_options(hmysql, MYSQL_OPT_CONNECT_TIMEOUT, &timeout_sec);
-	conn_result = mysql_real_connect(hmysql, "localhost", "root", "dltnals", "simplemmo", 3306, NULL, 0);
+	conn_result = mysql_real_connect(hmysql, "localhost", "root", "dltnals", "simplemmo", 3306, NULL, CLIENT_MULTI_STATEMENTS);
 
 	if (NULL == conn_result)
 	{
@@ -236,19 +236,20 @@ void InitializeDB()
 	{
 		cout << "DB Connection Success" << endl;
 		LoginInfo tmp;
-		Login("test1", "1234", tmp);
 		char query[1024];
 		MYSQL_RES* result{};
 		MYSQL_ROW row;
 		//pstmtExample(hmysql);
-		string id{ "test1" }, pw{ "1234" };
+		string id{ "sponge" }, pw{ "12354" };
 		short is_ok{};
-		sprintf_s(query, 1024, "call dummytest('%s','%s')", id.c_str(), pw.c_str());
-		//sprintf_s(query, 1024, "call try_login('%s','%s')", id.c_str(), pw.c_str());
+		//sprintf_s(query, 1024, "call dummytest('%s','%s')", id.c_str(), pw.c_str());
+		//sprintf_s(query, 1024, "call save_status('%s',%d,%d,%d,%d,%d,%d)", id.c_str(), 20, 20, 1, 0, 10, 10);
+		sprintf_s(query, 1024, "call try_login('%s','%s')", id.c_str(), pw.c_str());
 		//sprintf_s(query, 1024, "call dummytest()");
 		//int res = sprintf_s(query, 1024, "SELECT * from player_data WHERE player_name = '%s' and player_password = '%s'", id.c_str(), pw.c_str());
 		//Send Query
-		if (mysql_query(hmysql, query))
+		int status = 0;
+		if (status = mysql_query(hmysql, query))
 		{
 			cout << "SELECT Fail" << endl;
 			fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
@@ -258,7 +259,7 @@ void InitializeDB()
 		// Get Response
 		result = mysql_store_result(hmysql);
 		cout << mysql_affected_rows(hmysql) << endl;
-		
+
 		MYSQL_FIELD* field;
 		field = mysql_fetch_fields(result);
 		int fields = mysql_num_fields(result);    // 필드 갯수 구함
@@ -267,15 +268,42 @@ void InitializeDB()
 		{
 			for (int i = 0; i < fields; i++)    // 각각의 레코드에서 모든 필드 값 출력
 			{
-				cout << field[i].name<<":" << row[i] << "   \n";
+				cout << field[i].name << ":" << row[i] << "   \n";
 			}
 			cout << endl;
 		}
 
+		if ((status = mysql_next_result(hmysql)) > 0)
+			printf("Could not execute statement\n");
 		mysql_free_result(result);
-
+		if (mysql_query(hmysql, query))
+		{
+			cout << "SELECT Fail" << endl;
+			fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+			return;
+		}
 
 		mysql_close(hmysql);
+	}
+}
+
+
+void InitializeDB()
+{
+	MYSQL* conn_result;
+	unsigned int timeout_sec = 1;
+
+	hmysql = mysql_init(NULL);
+	mysql_options(hmysql, MYSQL_OPT_CONNECT_TIMEOUT, &timeout_sec);
+	conn_result = mysql_real_connect(hmysql, "localhost", "root", "dltnals", "simplemmo", 3306, NULL, CLIENT_MULTI_STATEMENTS);
+
+	if (NULL == conn_result)
+	{
+		cout << "DB Connection Fail" << endl;
+	}
+	else
+	{
+		cout << "DB Connection Success" << endl;
 	}
 }
 
@@ -322,6 +350,11 @@ int Login(const char* name, const char* pw, LoginInfo& p_info)
 
 
 		mysql_free_result(result);
+
+
+		if (mysql_next_result(hmysql) >= 0)
+			fprintf(stderr, "more result or error\n");
+
 		return 1;				//로그인 성공
 	}
 	else {
@@ -336,77 +369,75 @@ int Login(const char* name, const char* pw, LoginInfo& p_info)
 int MakeCharacterAndLogin(const char* name,const char* pw, LoginInfo& p_info)
 {
 
-//	SQLINTEGER p_exp{};
-//	SQLSMALLINT p_x{}, p_y{}, p_level{}, p_hp{}, p_maxhp{};
-//	SQLWCHAR p_name[20]{};
-//	SQLLEN cbName = 0, cbP_x = 0, cbP_y = 0, cbP_exp = 0, cbP_level = 0, cbP_hp = 0, cbP_maxhp = 0;
-//	SQLRETURN retcode{};
-//
-//	//cout << "ODBC Connected !" << endl;
-//	wstring MakeCharQuery{ L"EXEC make_character " };
-//	wstring LoginQuery{ L"EXEC try_login " };
-//	USES_CONVERSION;
-//	LoginQuery += A2W(name);
-//	MakeCharQuery += A2W(name);
-//
-//	retcode = SQLExecDirect(hstmt, (SQLWCHAR*)MakeCharQuery.c_str(), SQL_NTS);
-//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
-//	{
-//
-//	}
-//	else if(retcode == SQL_ERROR){
-//		HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
-//	}
-//
-//	retcode = SQLExecDirect(hstmt, (SQLWCHAR*)LoginQuery.c_str(), SQL_NTS);
-//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-//
-//
-//		// Bind columns 1, 2, and 3  
-//		retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, p_name, 20, &cbName);
-//		retcode = SQLBindCol(hstmt, 2, SQL_C_SHORT, &p_x, 10, &cbP_x);
-//		retcode = SQLBindCol(hstmt, 3, SQL_C_SHORT, &p_y, 10, &cbP_y);
-//		retcode = SQLBindCol(hstmt, 4, SQL_C_SHORT, &p_level, 10, &cbP_level);
-//		retcode = SQLBindCol(hstmt, 5, SQL_C_SHORT, &p_hp, 10, &cbP_hp);
-//		retcode = SQLBindCol(hstmt, 6, SQL_C_SHORT, &p_maxhp, 10, &cbP_maxhp);
-//		retcode = SQLBindCol(hstmt, 7, SQL_C_LONG, &p_exp, 100, &cbP_exp);
-//
-//		// Fetch and print each row of data. On an error, display a message and exit.  
-//		//for (int i = 0; ; i++)
-//		{
-//			retcode = SQLFetch(hstmt);
-//			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
-//			{
-//				strcpy_s(p_info.p_name, 20, (char*)p_name);
-//				p_info.p_x = p_x;
-//				p_info.p_y = p_y;
-//				p_info.p_level = p_level;
-//				p_info.p_hp = p_hp;
-//				p_info.p_maxhp = p_maxhp;
-//				p_info.p_exp = p_exp;
-//
-//				SQLCancel(hstmt);
-//				return true;
-//			}
-//			else if (retcode == SQL_ERROR) {
-//
-//				HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
-//				SQLCancel(hstmt);
-//				return -1;
-//			}
-//		}
-//
-//	}
-//	else {
-//		HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
-//		// Process data  
-//		SQLCancel(hstmt);
-//		return -1;
-//	}
-//
-//	// Process data  
-//	SQLCancel(hstmt);
-//	return -1;
+
+	char makecharquery[1024];
+	char loginquery[1024];
+	MYSQL_RES* result{};
+	MYSQL_ROW row;
+	short is_ok{};
+	if (pw == nullptr)
+	{
+		sprintf_s(makecharquery, 1024, "call make_character('%s','%s')", name, "1234");
+		sprintf_s(loginquery, 1024, "call try_login('%s','%s')", name, "1234");
+	}
+	else {
+		sprintf_s(makecharquery, 1024, "call make_character('%s','%s')", name, pw);
+		sprintf_s(loginquery, 1024, "call try_login('%s','%s')", name, pw);
+	}
+
+	if (mysql_query(hmysql, makecharquery))
+	{
+		cout << "make character Fail" << endl;
+		fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+		return -1;
+	}
+
+	if (mysql_next_result(hmysql) >= 0)
+		fprintf(stderr, "more result or error\n");
+
+	if (mysql_query(hmysql, loginquery))
+	{
+		cout << "try login Fail" << endl;
+		fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+		return -1;
+	}
+	// Get Response
+	result = mysql_store_result(hmysql);
+	cout << mysql_affected_rows(hmysql) << endl;
+	if (mysql_affected_rows(hmysql) == 1)
+	{
+		MYSQL_FIELD* field;
+		field = mysql_fetch_fields(result);
+		int fields = mysql_num_fields(result);    // 필드 갯수 구함
+		LoginInfo a;
+		row = mysql_fetch_row(result);     // 모든 레코드 탐색 실패시 NULL반환 while 탈출
+
+		strcpy_s(p_info.p_name, 20, row[0]);
+		p_info.p_x = atoi(row[2]);
+		p_info.p_y = atoi(row[3]);
+		p_info.p_level = atoi(row[4]);
+		p_info.p_hp = atoi(row[5]);
+		p_info.p_maxhp = atoi(row[6]);
+		p_info.p_exp = atoi(row[7]);
+
+
+		mysql_free_result(result);
+
+
+		if (mysql_next_result(hmysql) >= 0)
+			fprintf(stderr, "more result or error\n");
+
+
+		return 1;				//로그인 성공
+	}
+	else {
+
+		mysql_free_result(result);
+
+		if (mysql_next_result(hmysql) >= 0)
+			fprintf(stderr, "more result or error\n");
+		return -1;				//로그인 실패 
+	}
 	return -1;
 }
 
@@ -414,6 +445,8 @@ int MakeCharacterAndLogin(const char* name,const char* pw, LoginInfo& p_info)
 
 void SavePos(const char* name, int x, int y)
 {
+
+
 //	SQLRETURN retcode;
 //
 //	//cout << "ODBC Connected !" << endl;
@@ -441,31 +474,17 @@ void SavePos(const char* name, int x, int y)
 //
 void SaveStatus(const char* name, short hp, short maxhp, short level, short exp,short x,short y)
 {
-//	SQLRETURN retcode;
-//
-//	//cout << "ODBC Connected !" << endl;
-//	wstring SaveQuery{ L"EXEC save_status " };
-//
-//	USES_CONVERSION;
-//	SaveQuery += A2W(name);
-//	SaveQuery += L",";
-//	SaveQuery += to_wstring(hp);
-//	SaveQuery += L",";
-//	SaveQuery += to_wstring(maxhp);
-//	SaveQuery += L",";
-//	SaveQuery += to_wstring(level);
-//	SaveQuery += L",";
-//	SaveQuery += to_wstring(exp);
-//	SaveQuery += L",";
-//	SaveQuery += to_wstring(x);
-//	SaveQuery += L",";
-//	SaveQuery += to_wstring(y);
-//
-//
-//	retcode = SQLExecDirect(hstmt, (SQLWCHAR*)SaveQuery.c_str(), SQL_NTS);
-//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-//	}
-//	else {
-//		HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
-//	}
+
+	char query[1024];
+	sprintf_s(query, 1024, "call save_status('%s',%d,%d,%d,%d,%d,%d)", name, hp, maxhp, level, exp, x, y);
+	if (mysql_query(hmysql, query))
+	{
+		cout << "save status Fail" << endl;
+		fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+		return;
+	}
+
+	if (mysql_next_result(hmysql) >= 0)
+		fprintf(stderr, "more result or error\n");
+	return ;
 }

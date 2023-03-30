@@ -7,6 +7,7 @@
 
 extern MYSQL* hmysql;
 
+void mysqlTestCode();
 void InitializeDB();
 void ReleaseDB();
 int Login(const char* name, const char* pw, LoginInfo& p_info);
