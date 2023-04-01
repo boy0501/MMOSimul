@@ -24,11 +24,80 @@ void StmtErrorCheck(MYSQL_STMT* pstmt, const char* funcname)
 	fprintf(stderr, " %ld\n", mysql_stmt_errno(pstmt));
 }
 
+void pstmtObjectExample()
+{
+	MYSQL_BIND bind_parameter[3];
+	string b_name, b_pw;
+	short is_ok;
+	unsigned long b_namelen{}, b_pwlen{}, b_isoklen;
+	PrepareBindParam(MYSQL_TYPE_STRING, bind_parameter[0], const_cast<char*>(b_name.c_str()), 20, &b_namelen, 0, 0);
+	PrepareBindParam(MYSQL_TYPE_STRING, bind_parameter[1], const_cast<char*>(b_pw.c_str()), 20, &b_pwlen, 0, 0);
+	PrepareBindParam(MYSQL_TYPE_SHORT, bind_parameter[2], &is_ok, 0, &b_isoklen, 0, 0);
+	b_name = "test2";
+	b_namelen = b_name.length();
+	b_pw = "1234";
+	b_pwlen = b_pw.length();
+
+	MYSQL_BIND bind_res[8];
+	bool bind_error[8];
+	bool bind_isnull[8];
+	unsigned long bind_reslen[8];
+
+	memset(bind_res, 0, sizeof(bind_res));
+
+	string r_name, r_pw;
+	short r_x{}, r_y{}, r_lv{}, r_hp{}, r_mhp{};
+	int r_exp{};
+	PrepareBindParam(MYSQL_TYPE_STRING, bind_res[0], const_cast<char*>(r_name.c_str()), 20, &bind_reslen[0], &bind_isnull[0], &bind_error[0]);
+	PrepareBindParam(MYSQL_TYPE_STRING, bind_res[1], const_cast<char*>(r_pw.c_str()), 20, &bind_reslen[1], &bind_isnull[1], &bind_error[1]);
+	PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[2], &r_x, 0, &bind_reslen[2], &bind_isnull[2], &bind_error[2]);
+	PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[3], &r_y, 0, &bind_reslen[3], &bind_isnull[3], &bind_error[3]);
+	PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[4], &r_lv, 0, &bind_reslen[4], &bind_isnull[4], &bind_error[4]);
+	PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[5], &r_hp, 0, &bind_reslen[5], &bind_isnull[5], &bind_error[5]);
+	PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[6], &r_mhp, 0, &bind_reslen[6], &bind_isnull[6], &bind_error[6]);
+	PrepareBindParam(MYSQL_TYPE_LONG, bind_res[7], &r_exp, 0, &bind_reslen[7], &bind_isnull[7], &bind_error[7]);
+
+
+	{
+		PrepareStatement pstmt{ hmysql };
+		pstmt.SetQuery("Call dummytest(?,?,?)");
+		pstmt.AddDataParameter(bind_parameter);
+		pstmt.Excute();
+		pstmt.AddResultParameter(bind_res);
+		do {
+			pstmt.ReadyToResponse();
+			while (!pstmt.Fetch())
+			{
+				cout << r_name.c_str() << " " << r_pw.c_str() << " " << r_x << "," << r_y << "," << r_lv << "," << r_hp << "," << r_mhp << "," << r_exp << endl;
+				//Do Something;
+			}
+		} while (pstmt.GetResponse() == 0);
+	}
+
+	{
+		PrepareStatement pstmt{ hmysql };
+		pstmt.SetQuery("Call dummytest(?,?,?)");
+		pstmt.AddDataParameter(bind_parameter);
+		pstmt.Excute();
+		pstmt.AddResultParameter(bind_res);
+		do {
+			pstmt.ReadyToResponse();
+			while (!pstmt.Fetch())
+			{
+				//Do Something;
+			}
+		} while (pstmt.GetResponse() == 0);
+	}
+
+}
+
 void pstmtExample(MYSQL* hmysql)
 {
+	pstmtObjectExample();
 
 	//-----------------------------------------
 	char stmtquery[1024];
+	int status = 0;
 	sprintf_s(stmtquery, 1024, "call dummytest(?,?,?)");
 	//sprintf_s(stmtquery, 1024, "call make_character(?,?)");
 	//sprintf_s(stmtquery, 1024, "SELECT * from player_data");
@@ -39,11 +108,11 @@ void pstmtExample(MYSQL* hmysql)
 
 	if (mysql_stmt_prepare(pstmt, stmtquery, strlen(stmtquery)))	// prepare statment 쿼리
 	{
-		fprintf(stderr, " mysql_stmt_prepare(), INSERT failed\n");
+		fprintf(stderr, " mysql_stmt_prepare(), failed\n");
 		fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));
 		fprintf(stderr, " %ld\n", mysql_stmt_errno(pstmt));
 	}
-	cout << mysql_stmt_param_count(pstmt) <<endl;
+
 	MYSQL_BIND bind_parameter[3];
 	string b_name,b_pw;
 	short is_ok;
@@ -69,72 +138,69 @@ void pstmtExample(MYSQL* hmysql)
 		fprintf(stderr, " mysql_stmt_execute(), 1 failed\n");
 		fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));
 	}
-	cout <<  mysql_stmt_affected_rows(pstmt) << endl;
-	/* Fetch result set meta information */
-	//auto prepare_meta_result = mysql_stmt_result_metadata(pstmt);
-	//cout << mysql_num_fields(prepare_meta_result) << endl;
-	//if (!prepare_meta_result)
-	//{
-	//	fprintf(stderr,
-	//		" mysql_stmt_result_metadata(), \
-        //   returned no meta information\n");
-		//	fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));
-		//}
+	do {
+
+		int	num_fields = mysql_stmt_field_count(pstmt);
+		if (num_fields > 0)
+		{
+			/* Bind the result buffers for all 4 columns before fetching them */
+			MYSQL_BIND bind_res[8];
+			bool bind_error[8];
+			bool bind_isnull[8];
+			unsigned long bind_reslen[8];
+
+			memset(bind_res, 0, sizeof(bind_res));
+
+			string r_name, r_pw;
+			short r_x{}, r_y{}, r_lv{}, r_hp{}, r_mhp{};
+			int r_exp{};
+			PrepareBindParam(MYSQL_TYPE_STRING, bind_res[0], const_cast<char*>(r_name.c_str()), 20, &bind_reslen[0], &bind_isnull[0], &bind_error[0]);
+			PrepareBindParam(MYSQL_TYPE_STRING, bind_res[1], const_cast<char*>(r_pw.c_str()), 20, &bind_reslen[1], &bind_isnull[1], &bind_error[1]);
+			PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[2], &r_x, 0, &bind_reslen[2], &bind_isnull[2], &bind_error[2]);
+			PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[3], &r_y, 0, &bind_reslen[3], &bind_isnull[3], &bind_error[3]);
+			PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[4], &r_lv, 0, &bind_reslen[4], &bind_isnull[4], &bind_error[4]);
+			PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[5], &r_hp, 0, &bind_reslen[5], &bind_isnull[5], &bind_error[5]);
+			PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[6], &r_mhp, 0, &bind_reslen[6], &bind_isnull[6], &bind_error[6]);
+			PrepareBindParam(MYSQL_TYPE_LONG, bind_res[7], &r_exp, 0, &bind_reslen[7], &bind_isnull[7], &bind_error[7]);
 
 
-		/* Bind the result buffers for all 4 columns before fetching them */
-	//MYSQL_BIND bind_res[8];
-	//bool bind_error[8];
-	//bool bind_isnull[8];
-	//unsigned long bind_reslen[8];
-	//
-	//memset(bind_res, 0, sizeof(bind_res));
-	//
-	//string r_name, r_pw;
-	//short r_x{}, r_y{}, r_lv{}, r_hp{}, r_mhp{};
-	//int r_exp{};
-	//PrepareBindParam(MYSQL_TYPE_STRING, bind_res[0], const_cast<char*>(r_name.c_str()), 20, bind_reslen[0], &bind_isnull[0], &bind_error[0]);
-	//PrepareBindParam(MYSQL_TYPE_STRING, bind_res[1], const_cast<char*>(r_pw.c_str()), 20, bind_reslen[1], &bind_isnull[1], &bind_error[1]);
-	//PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[2], &r_y, 0, bind_reslen[2], &bind_isnull[2], &bind_error[2]);
-	//PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[3], &r_y, 0, bind_reslen[3], &bind_isnull[3], &bind_error[3]);
-	//PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[4], &r_lv, 0, bind_reslen[4], &bind_isnull[4], &bind_error[4]);
-	//PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[5], &r_hp, 0, bind_reslen[5], &bind_isnull[5], &bind_error[5]);
-	//PrepareBindParam(MYSQL_TYPE_SHORT, bind_res[6], &r_mhp, 0, bind_reslen[6], &bind_isnull[6], &bind_error[6]);
-	//PrepareBindParam(MYSQL_TYPE_LONG, bind_res[7], &r_exp, 0, bind_reslen[7], &bind_isnull[7], &bind_error[7]);
-	//
-	//
-	///* Bind the result buffers */
-	//if (mysql_stmt_bind_result(pstmt, bind_res))
-	//{
-	//	fprintf(stderr, " mysql_stmt_bind_result() failed\n");
-	//	fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));
-	//	fprintf(stderr, " %ld\n", mysql_stmt_errno(pstmt));
-	//}
-	//
-	///* Now buffer all results to client (optional step) */
-	//// fetch할때 서버에서 하나씩 받아오는게 아닌, 한방에 버퍼에 넣어두기 위한 작업
-	//// 결과 집합을 생성하지 않는 SQL 문을 실행한 후 호출할 필요는 없지만 호출하더라도 성능에 해를 끼치거나 눈에 띄는 성능 문제가 발생하지는 않습니다. -mysql 공식문서
-	//if (mysql_stmt_store_result(pstmt))
-	//{
-	//	fprintf(stderr, " mysql_stmt_store_result() failed\n");
-	//	fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));
-	//
-	//}
-	//int row_count = 0;
-	//for (int i = 0; i < 100; ++i)
-	//{
-	//	cout << mysql_stmt_fetch(pstmt) << endl;
-	//}
-	//while (!mysql_stmt_fetch(pstmt))
-	//{
-	//	row_count++;
-	//
-	//}
-	/* Free the prepared result metadata */
-	//auto infos = mysql_stmt_affected_rows(pstmt);
-	//cout << "변경된거 :" << row_count << endl;
+			/* Bind the result buffers */
+			if (mysql_stmt_bind_result(pstmt, bind_res))
+			{
+				fprintf(stderr, " mysql_stmt_bind_result() failed\n");
+				fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));
+				fprintf(stderr, " %ld\n", mysql_stmt_errno(pstmt));
+			}
 
-	//mysql_free_result(prepare_meta_result);
+			/* Now buffer all results to client (optional step) */
+			// fetch할때 서버에서 하나씩 받아오는게 아닌, 한방에 버퍼에 넣어두기 위한 작업
+			// 결과 집합을 생성하지 않는 SQL 문을 실행한 후 호출할 필요는 없지만 호출하더라도 성능에 해를 끼치거나 눈에 띄는 성능 문제가 발생하지는 않습니다. -mysql 공식문서
+			if (mysql_stmt_store_result(pstmt))
+			{
+				fprintf(stderr, " mysql_stmt_store_result() failed\n");
+				fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));
+
+			}
+			int row_count = 0;
+			while (!mysql_stmt_fetch(pstmt))
+			{
+				row_count++;
+
+			}
+			/* Free the prepared result metadata */
+			auto infos = mysql_stmt_affected_rows(pstmt);
+			cout << "변경된거 :" << row_count << endl;
+
+			
+		}
+
+		status = mysql_stmt_next_result(pstmt);
+		if (status > 0)
+		{
+			fprintf(stderr, " %s\n", mysql_stmt_error(pstmt));			
+		}
+	} while (status == 0);
+	
 	/* Close the statement */
 	if (mysql_stmt_close(pstmt))
 	{
@@ -304,6 +370,7 @@ void InitializeDB()
 	else
 	{
 		cout << "DB Connection Success" << endl;
+		pstmtExample(hmysql);
 	}
 }
 
@@ -488,3 +555,142 @@ void SaveStatus(const char* name, short hp, short maxhp, short level, short exp,
 		fprintf(stderr, "more result or error\n");
 	return ;
 }
+
+PrepareStatement::PrepareStatement(MYSQL* sql)
+	:mAffectRowCnt(0)
+	, mQueryType(0)
+{
+	mMysql = sql;
+	mPstmt = mysql_stmt_init(mMysql);
+}
+
+PrepareStatement::~PrepareStatement()
+{
+	if (mysql_stmt_close(mPstmt))
+	{
+		/* mysql_stmt_close() invalidates stmt, so call          */
+		/* mysql_error(mysql) rather than mysql_stmt_error(stmt) */
+		fprintf(stderr, " failed while closing the statement\n");
+		fprintf(stderr, " %s\n", mysql_error(mMysql));
+		fprintf(stderr, " %ld\n", mysql_errno(mMysql));
+	}
+}
+
+void PrepareStatement::SetQuery(const char* query)
+{
+	mQuery = query;
+	SetQueryType();
+
+	if (mysql_stmt_prepare(mPstmt, mQuery.c_str(), mQuery.length()))	// prepare statment 쿼리
+	{
+		fprintf(stderr, " mysql_stmt_prepare(), failed\n");
+		fprintf(stderr, " %s\n", mysql_stmt_error(mPstmt));
+		fprintf(stderr, " %ld\n", mysql_stmt_errno(mPstmt));
+	}
+}
+
+void PrepareStatement::AddDataParameter(MYSQL_BIND* params)
+{
+	if (mysql_stmt_bind_param(mPstmt, params))
+	{
+		fprintf(stderr, " mysql_stmt_bind_param() failed\n");
+		fprintf(stderr, " %s\n", mysql_stmt_error(mPstmt));
+	}
+}
+
+void PrepareStatement::AddResultParameter(MYSQL_BIND* params)
+{
+	/* Bind the result buffers */
+	if (mysql_stmt_bind_result(mPstmt, params))
+	{
+		fprintf(stderr, " mysql_stmt_bind_result() failed\n");
+		fprintf(stderr, " %s\n", mysql_stmt_error(mPstmt));
+		fprintf(stderr, " %ld\n", mysql_stmt_errno(mPstmt));
+	}
+}
+
+void PrepareStatement::Excute()
+{
+	if (mysql_stmt_execute(mPstmt))
+	{
+		fprintf(stderr, " mysql_stmt_execute(), 1 failed\n");
+		fprintf(stderr, " %s\n", mysql_stmt_error(mPstmt));
+	}
+}
+
+int PrepareStatement::Fetch()
+{
+	if (mAffectRowCnt > 0)
+	{
+		return mysql_stmt_fetch(mPstmt);
+	}
+	return 1;	//fetch 실패
+}
+
+int PrepareStatement::GetResponse()
+{
+	switch (mQueryType)
+	{
+	case 0:
+	{
+		return GetOneResponse();
+	}
+	default:
+		break;
+	}
+	return 0;
+}
+
+void PrepareStatement::ReadyToResponse()
+{
+	mAffectRowCnt = mysql_stmt_field_count(mPstmt);
+	if (mAffectRowCnt > 0)
+	{
+		/* Now buffer all results to client (optional step) */
+		// fetch할때 서버에서 하나씩 받아오는게 아닌, 한방에 버퍼에 넣어두기 위한 작업
+		// 결과 집합을 생성하지 않는 SQL 문을 실행한 후 호출할 필요는 없지만 호출하더라도 성능에 해를 끼치거나 눈에 띄는 성능 문제가 발생하지는 않습니다. -mysql 공식문서
+		if (mysql_stmt_store_result(mPstmt))
+		{
+			fprintf(stderr, " mysql_stmt_store_result() failed\n");
+			fprintf(stderr, " %s\n", mysql_stmt_error(mPstmt));
+			fprintf(stderr, " %ld\n", mysql_stmt_errno(mPstmt));
+
+		}
+	}
+}
+
+void PrepareStatement::SetQueryType()
+{
+	string tmp = "call";
+
+	char buffer[5];
+	strncpy_s(buffer, 5, mQuery.c_str(), 4);
+	transform(cbegin(buffer), cend(buffer), begin(buffer), std::tolower);
+	switch (tmp.compare(buffer))
+	{
+	case 0:
+		mQueryType = 0;
+		break;
+	default:
+		mQueryType = 1;
+		break;
+	}
+}
+
+int PrepareStatement::GetOneResponse()
+{
+
+	int status = 0;
+	status = mysql_stmt_next_result(mPstmt);
+	if (status > 0)
+	{
+		fprintf(stderr, " mysql_stmt_next_result() failed\n");
+		fprintf(stderr, " %s\n", mysql_stmt_error(mPstmt));
+		fprintf(stderr, " %ld\n", mysql_stmt_errno(mPstmt));
+		return status;
+	}
+
+	return status;
+}
+
+
