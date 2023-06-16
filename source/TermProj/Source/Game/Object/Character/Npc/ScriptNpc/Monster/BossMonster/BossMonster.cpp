@@ -1,14 +1,15 @@
 #include <iostream>
 #include <random>
-#include "NormalMonster.h"
+#include "BossMonster.h"
 
 using namespace std;
 
 
-NormalMonster::NormalMonster(const char* scriptname, int n_id)
-	:ScriptNpc(scriptname, n_id)
+BossMonster::BossMonster(const char* scriptname, int n_id)
+	:Monster(scriptname, n_id)
+	, AgroRange(0)
 {
-	imageType = OBJECT_NORMALMONSTER;
+	imageType = OBJECT_BOSS;
 	L = luaL_newstate();
 	luaL_openlibs(L);
 	string mScriptname{ "Script/" };
@@ -16,6 +17,7 @@ NormalMonster::NormalMonster(const char* scriptname, int n_id)
 	int error = luaL_loadfile(L, mScriptname.c_str()) || lua_pcall(L, 0, 0, 0);
 	if (error != 0)
 	{
+		cout << "¿©±â³ª?" << endl;
 		cout << lua_tostring(L, -1) << endl;
 	}
 	lua_getglobal(L, "set_uid");
@@ -27,31 +29,26 @@ NormalMonster::NormalMonster(const char* scriptname, int n_id)
 	}
 
 	lua_getglobal(L, "Init");
-	if (0 != lua_pcall(L, 0, 10, 0))
-	{
-		cout << lua_tostring(L, -1) << endl;
-	}
+	lua_pcall(L, 0, 9, 0);
 	bool spawntrigger = lua_toboolean(L, -1);
 	strcpy_s(name, 20, lua_tostring(L, -2));
-	auto spawnAreaCenterY = lua_tointeger(L, -3);
-	auto spawnAreaCenterX = lua_tointeger(L, -4);
+	auto spawnAreaY = lua_tointeger(L, -3);
+	auto spawnAreaX = lua_tointeger(L, -4);
 	level = lua_tointeger(L, -5);
 	maxhp = lua_tointeger(L, -6);
 	monType = (MonsterType)lua_tointeger(L, -7);
 	monMoveType = (MonsterMoveType)lua_tointeger(L, -8);
-	int spawnwidth = lua_tointeger(L, -9);
-	int spawnheight = lua_tointeger(L, -10);
-	lua_pop(L, 10);
+	Peace_Notice_Range = lua_tointeger(L, -9);
+	lua_pop(L, 9);
 
 	if (spawntrigger == false)
 	{
 		random_device rd;
 		mt19937 rng(rd());
-		uniform_int_distribution<int> RX(spawnAreaCenterX - spawnwidth, spawnAreaCenterX + spawnwidth);
-		uniform_int_distribution<int> RY(spawnAreaCenterY - spawnheight, spawnAreaCenterY + spawnheight);
+		uniform_int_distribution<int> RPos(-250, 250);
 		while (1) {
-			x = RX(rng);
-			y = RY(rng);
+			x = RPos(rng) + spawnAreaX;
+			y = RPos(rng) + spawnAreaY;
 			if (mMap[x][y] == 0)
 				break;
 		}
@@ -61,8 +58,8 @@ NormalMonster::NormalMonster(const char* scriptname, int n_id)
 		//y = rand() % WORLD_HEIGHT;
 	}
 	else {
-		x = spawnAreaCenterX;
-		y = spawnAreaCenterY;
+		x = spawnAreaX;
+		y = spawnAreaY;
 	}
 
 	lua_register(L, "API_SendMessage", CPP_SendMessage);
@@ -75,9 +72,12 @@ NormalMonster::NormalMonster(const char* scriptname, int n_id)
 	lua_register(L, "API_get_MaxHp", CPP_get_MaxHp);
 	lua_register(L, "API_MonsterAttack", CPP_MonsterAttack);
 	lua_register(L, "API_ChaseTarget", CPP_ChaseTarget);
+	lua_register(L, "API_TelePortTarget", CPP_TelePortTarget);
+	lua_register(L, "API_BossDeBuff", CPP_BossDeBuff);
+	lua_register(L, "API_BossBuffMySight", CPP_BossBuffMySight);
 }
 
-NormalMonster::~NormalMonster()
+BossMonster::~BossMonster()
 {
 
 }

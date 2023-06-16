@@ -1,6 +1,6 @@
 #pragma once
-#include "../ScriptNpc.h"
-class AngryMonster :public ScriptNpc
+#include "../Monster.h"
+class AngryMonster :public Monster
 {
 public:
 	AngryMonster(const char* scriptname, int n_id);

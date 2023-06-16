@@ -1,15 +1,14 @@
 #include <iostream>
 #include <random>
-#include "AngryMonster.h"
+#include "NormalMonster.h"
 
 using namespace std;
 
 
-AngryMonster::AngryMonster(const char* scriptname, int n_id)
-	:ScriptNpc(scriptname, n_id)
-	, AgroRange(0)
+NormalMonster::NormalMonster(const char* scriptname, int n_id)
+	:Monster(scriptname, n_id)
 {
-	imageType = OBJECT_ANGRYMONSTER;
+	imageType = OBJECT_NORMALMONSTER;
 	L = luaL_newstate();
 	luaL_openlibs(L);
 	string mScriptname{ "Script/" };
@@ -17,7 +16,6 @@ AngryMonster::AngryMonster(const char* scriptname, int n_id)
 	int error = luaL_loadfile(L, mScriptname.c_str()) || lua_pcall(L, 0, 0, 0);
 	if (error != 0)
 	{
-		cout << "여기나?" << endl;
 		cout << lua_tostring(L, -1) << endl;
 	}
 	lua_getglobal(L, "set_uid");
@@ -29,19 +27,21 @@ AngryMonster::AngryMonster(const char* scriptname, int n_id)
 	}
 
 	lua_getglobal(L, "Init");
-	lua_pcall(L, 0, 11, 0);
+	if (0 != lua_pcall(L, 0, 10, 0))
+	{
+		cout << lua_tostring(L, -1) << endl;
+	}
 	bool spawntrigger = lua_toboolean(L, -1);
 	strcpy_s(name, 20, lua_tostring(L, -2));
 	auto spawnAreaCenterY = lua_tointeger(L, -3);
 	auto spawnAreaCenterX = lua_tointeger(L, -4);
 	level = lua_tointeger(L, -5);
 	maxhp = lua_tointeger(L, -6);
-	AgroRange = lua_tointeger(L, -7);
-	monType = (MonsterType)lua_tointeger(L, -8);
-	monMoveType = (MonsterMoveType)lua_tointeger(L, -9);
-	int spawnwidth = lua_tointeger(L, -10);
-	int spawnheight = lua_tointeger(L, -11);
-	lua_pop(L, 11);
+	monType = (MonsterType)lua_tointeger(L, -7);
+	monMoveType = (MonsterMoveType)lua_tointeger(L, -8);
+	int spawnwidth = lua_tointeger(L, -9);
+	int spawnheight = lua_tointeger(L, -10);
+	lua_pop(L, 10);
 
 	if (spawntrigger == false)
 	{
@@ -55,7 +55,7 @@ AngryMonster::AngryMonster(const char* scriptname, int n_id)
 			if (mMap[x][y] == 0)
 				break;
 		}
-		
+
 		//추후에 여기에서 바운더 처리 해줘야함. 
 		//x = rand() % WORLD_WIDTH;
 		//y = rand() % WORLD_HEIGHT;
@@ -77,7 +77,7 @@ AngryMonster::AngryMonster(const char* scriptname, int n_id)
 	lua_register(L, "API_ChaseTarget", CPP_ChaseTarget);
 }
 
-AngryMonster::~AngryMonster()
+NormalMonster::~NormalMonster()
 {
 
 }

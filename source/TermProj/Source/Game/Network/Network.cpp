@@ -7,10 +7,10 @@
 #include "../Object/Character/Player/Player.h"
 #include "../Object/Character/Npc/Npc.h"
 #include "../Object/Character/Npc/ScriptNpc/ScriptNpc.h"
-#include "../Object/Character/Npc/ScriptNpc/AngryMonster/AngryMonster.h"
-#include "../Object/Character/Npc/ScriptNpc/PlantMonster/PlantMonster.h"
-#include "../Object/Character/Npc/ScriptNpc/NormalMonster/NormalMonster.h"
-#include "../Object/Character/Npc/ScriptNpc/BossMonster/BossMonster.h"
+#include "../Object/Character/Npc/ScriptNpc/Monster/AngryMonster/AngryMonster.h"
+#include "../Object/Character/Npc/ScriptNpc/Monster/PlantMonster/PlantMonster.h"
+#include "../Object/Character/Npc/ScriptNpc/Monster/NormalMonster/NormalMonster.h"
+#include "../Object/Character/Npc/ScriptNpc/Monster/BossMonster/BossMonster.h"
 #include "../../../Script/cplustolua.h"
 #include "../../DB/DB.h"
 #pragma comment(lib,"lua54.lib")
@@ -64,9 +64,9 @@ void Disconnect(int _id)
 		Player* target = reinterpret_cast<Player*>(characters[other]);
 		if (true == target->is_Npc())
 		{
-			Npc* npc = reinterpret_cast<Npc*>(characters[other]);
-			if(npc->target == cl->_id)
-				npc->target = INVALID_TARGET;
+			Monster* npc = reinterpret_cast<Monster*>(characters[other]);
+			if(npc->GetTarget() == cl->_id)
+				npc->SetTarget(INVALID_TARGET);
 			continue;
 		}
 		if (Character::STATE::ST_INGAME != target->_state)
@@ -560,10 +560,10 @@ void process_packet(int client_id, unsigned char* p)
 				send_remove_object(player->_id, other_id);
 
 				if (characters[other_id]->is_Npc()) {
-					Npc* npc = reinterpret_cast<Npc*>(characters[other_id]);
-					if (npc->target == client_id)	//npc의 타겟이 나였다면
+					Monster* npc = reinterpret_cast<Monster*>(characters[other_id]);
+					if (npc->GetTarget() == client_id)	//npc의 타겟이 나였다면
 					{
-						npc->target = INVALID_TARGET;
+						npc->SetTarget(INVALID_TARGET);
 					}
 					continue;
 				}
@@ -595,7 +595,7 @@ void process_packet(int client_id, unsigned char* p)
 		for (auto v : my_vl)
 		{
 			if (false == characters[v]->is_Npc()) continue;
-			auto npc = reinterpret_cast<Npc*>(characters[v]);
+			auto npc = reinterpret_cast<Monster*>(characters[v]);
 			if (player->x == npc->x)
 			{
 				if (player->y - 1 <= npc->y && npc->y <= player->y + 1)
@@ -630,12 +630,12 @@ void process_packet(int client_id, unsigned char* p)
 						cout << lua_tostring(L, -1) << endl;
 						lua_pop(L, 1);
 					}
-					npc->target = player->_id;	//맞으면 타겟 설정.
+					npc->SetTarget(player->_id);//맞으면 타겟 설정.
 					npc->lua_lock.unlock();
 
-					if (npc->attack_cooltime < chrono::system_clock::now())
+					if (npc->GetAttackCoolTime() < chrono::system_clock::now())
 					{
-						npc->attack_cooltime = chrono::system_clock::now() + 2000ms;
+						npc->SetAttackCoolTime(chrono::system_clock::now() + 2000ms);
 						//다른사람이 동시에 때린다면 몬스터가 두번 공격 안하게 막아줌.
 						//한번 때리기 시작하면 타겟이 없어지지않는이상 계속 때리니까 
 						//어차피 now + 1000ms로 다른데서 갱신이 될거라 안들어오고.
@@ -646,7 +646,7 @@ void process_packet(int client_id, unsigned char* p)
 						//if (npc->monType == MonsterType::Peace)
 						{
 							//cout << "때리기 타이머 넣기" << endl;
-							switch (npc->monMoveType)
+							switch (npc->GetMonMoveType())
 							{
 							case MonsterMoveType::MT_Siege: {
 								Timer_Event instq;
@@ -709,21 +709,21 @@ void process_packet(int client_id, unsigned char* p)
 						cout << lua_tostring(L, -1) << endl;
 						lua_pop(L, 1);
 					}
-					npc->target = player->_id;	//맞으면 타겟 설정.
+					npc->SetTarget(player->_id);	//맞으면 타겟 설정.
 					npc->lua_lock.unlock();
-					if (npc->attack_cooltime < chrono::system_clock::now())
+					if (npc->GetAttackCoolTime() < chrono::system_clock::now())
 					{
-						npc->attack_cooltime = chrono::system_clock::now() + 2000ms;
+						npc->SetAttackCoolTime(chrono::system_clock::now() + 2000ms);
 						//다른사람이 동시에 때린다면 몬스터가 두번 공격 안하게 막아줌.
 						//한번 때리기 시작하면 타겟이 없어지지않는이상 계속 때리니까 
 						//어차피 now + 1000ms로 다른데서 갱신이 될거라 안들어오고.
 						// 플레이어한테 한대 맞고 1초뒤에 때리기 전까지 
 						// 다른 플레이어한테 한대 맞고 다시 때리면 안됨.
 						// 그리고 이 작업은 Peace 몬스터한테만 해당임. 어그로는 이미 타게팅돼서 쫒아오는중
-						if (npc->monType == MonsterType::Peace)
+						if (npc->GetMonType() == MonsterType::Peace)
 						{
 							//cout << "때리기 타이머 넣기" << endl;
-							switch (npc->monMoveType)
+							switch (npc->GetMonMoveType())
 							{
 							case MonsterMoveType::MT_Siege: {
 								Timer_Event instq;
@@ -796,10 +796,10 @@ void process_packet(int client_id, unsigned char* p)
 			{
 				if (characters[player_id]->is_Npc())
 				{
-					Npc* npc = reinterpret_cast<Npc*>(characters[player_id]);
-					if (npc->target == client_id)
+					Monster* npc = reinterpret_cast<Monster*>(characters[player_id]);
+					if (npc->GetTarget() == client_id)
 					{
-						npc->target = INVALID_TARGET;	//타게팅대상이었다면 풀어준다.
+						npc->SetTarget(INVALID_TARGET);	//타게팅대상이었다면 풀어준다.
 					}
 				}
 				else {
@@ -869,7 +869,7 @@ void process_packet(int client_id, unsigned char* p)
 void InitNPC()
 {
 	for (int i = NPC_ID_START; i <= NPC_ID_END; ++i) {
-		Npc* npc;
+		ScriptNpc* npc;
 		if (i < NPC_PLANT)
 		{
 			npc = new PlantMonster("monster.lua", i);
@@ -893,16 +893,7 @@ void InitNPC()
 		else {
 			npc = new BossMonster("bossmonster.lua", i);
 		}
-		lua_State* L = npc->L;
-		
-		lua_getglobal(L, "set_SpawnXY");
-		lua_pushnumber(L, npc->x);
-		lua_pushnumber(L, npc->y);
-		if (0 != lua_pcall(L, 2, 0, 0))
-		{
-			cout << lua_tostring(L, -1) << endl;
-			lua_pop(L, 1);
-		}
+		npc->SpawnNPC();
 
 		npc->_id = i;
 		//npc->maxhp = 20;
@@ -954,11 +945,11 @@ void push_queue(int player_id)
 	for (auto& other : vl)
 	{
 		if (characters[other]->is_Npc() == false) continue;
-		Npc* npc = reinterpret_cast<Npc*>(characters[other]);
+		Monster* npc = reinterpret_cast<Monster*>(characters[other]);
 		if (npc->isMoving == true) continue;
 		npc->isMoving = true;
 		//이 구문은 Peace 몬스터 일때 실행. Npc_Type으로 정해주는것.
-		switch (npc->monType)
+		switch (npc->GetMonType())
 		{
 		case MonsterType::Peace: 
 		{
@@ -980,7 +971,7 @@ void push_queue(int player_id)
 			AngryMonster* monster = reinterpret_cast<AngryMonster*>(npc);
 			if (is_Near_By_Range(monster->_id, player_id, monster->AgroRange))
 			{
-				monster->target = player_id;
+				monster->SetTarget(player_id);
 				Timer_Event instq;
 				instq.exec_time = chrono::system_clock::now() + 1000ms;
 				instq.player_id = player_id;
@@ -990,7 +981,7 @@ void push_queue(int player_id)
 			}
 			else {
 				Timer_Event instq;
-				monster->target = INVALID_TARGET;
+				monster->SetTarget(INVALID_TARGET);
 				instq.exec_time = chrono::system_clock::now() + 1000ms;
 				instq.player_id = INVALID_TARGET;
 				instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;

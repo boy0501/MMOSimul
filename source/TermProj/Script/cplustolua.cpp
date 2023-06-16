@@ -7,7 +7,7 @@
 #include "../Source/Game/Object/Character/Character.h"
 #include "../Source/Game/Object/Character/Player/Player.h"
 #include "../Source/Game/Object/Character/Npc/ScriptNpc/ScriptNpc.h"
-#include "../Source/Game/Object/Character/Npc/ScriptNpc/AngryMonster/AngryMonster.h"
+#include "../Source/Game/Object/Character/Npc/ScriptNpc/Monster/AngryMonster/AngryMonster.h"
 using namespace std;
 
 void do_npc_move(int npc_id,int spawnX,int spawnY,int movelimit);
@@ -21,7 +21,7 @@ int CPP_AutoMoveNPC(lua_State* L)
 	int spawnY = (int)lua_tointeger(L, -2);
 	int movelimit = (int)lua_tointeger(L, -1);
 	lua_pop(L, 5);
-	Npc* npc = reinterpret_cast<Npc*>(characters[npc_id]);
+	Monster* npc = reinterpret_cast<Monster*>(characters[npc_id]);
 
 	//Chase 할 대상이 없다면 Random Move한다.
 	// 	   근데 Chase할 대상이 있을수도있음 (autoMove하려는데 target이 생겨버린경우)
@@ -29,7 +29,7 @@ int CPP_AutoMoveNPC(lua_State* L)
 	// 	   Chase는 때렸을때 그때 돌아가도록 해줌. Attack 추가하고,,
 	//     그렇다는 말은. 때릴때 peace뿐만이 아니라 어그로도 때릴때 들어가도록함. 
 	//
-	if (npc->target == INVALID_TARGET)
+	if (npc->GetTarget() == INVALID_TARGET)
 		do_npc_move(npc_id, spawnX, spawnY, movelimit);
 	
 	return 0;
@@ -123,18 +123,14 @@ int CPP_MonsterDie(lua_State* L)
 	int player_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 3);
 	Player* player = reinterpret_cast<Player*>(characters[player_id]);
-	Npc* npc = reinterpret_cast<Npc*>(characters[npc_id]);
+	Monster* npc = reinterpret_cast<Monster*>(characters[npc_id]);
 	cout << "[log] monster[" << npc_id << "] die!" << endl;
 
 	int playerMaxExp = pow(2, player->level) * 100;
-	int getExp = (npc->level * npc->level * 2);
-	if (npc->monType == MonsterType::Agro)
-		getExp *= 2;
-	if (npc->monMoveType == MonsterMoveType::MT_Move)
-		getExp *= 2;
-	player->exp += getExp;
+	int exp = npc->RewardEXP();
+	player->exp += exp;
 	char buf[MAX_CHAT_SIZE];
-	sprintf_s(buf, "몬스터 %s를 무찔러서 %d의 경험치 획득!", npc->name, getExp);
+	sprintf_s(buf, "몬스터 %s를 무찔러서 %d의 경험치 획득!", npc->name, exp);
 
 	send_log_packet(player_id, buf);
 	if (player->exp >= playerMaxExp)
@@ -204,7 +200,7 @@ int CPP_MonsterAttack(lua_State* L)
 	int npc_Range = (int)lua_tointeger(L, -1);
 	lua_pop(L, 5);
 
-	Npc* npc = reinterpret_cast<Npc*>(characters[npc_id]);
+	Monster* npc = reinterpret_cast<Monster*>(characters[npc_id]);
 
 
 	if (is_Near_By_Range(npc_id, player_id, npc_Range))
@@ -212,7 +208,7 @@ int CPP_MonsterAttack(lua_State* L)
 		characters[player_id]->hp = max(characters[player_id]->hp - damage, 0);
 		if (characters[player_id]->hp <= 0)
 		{
-			npc->target = INVALID_TARGET;
+			npc->SetTarget(INVALID_TARGET);
 			npc->isMoving = false;
 			char logbuf[MAX_CHAT_SIZE];
 			sprintf_s(logbuf, MAX_CHAT_SIZE, "플레이어 사망");
@@ -261,10 +257,10 @@ int CPP_MonsterAttack(lua_State* L)
 			{
 				if (characters[p_id]->is_Npc())
 				{
-					Npc* npc = reinterpret_cast<Npc*>(characters[p_id]);
-					if (npc->target == player_id)
+					Monster* npc = reinterpret_cast<Monster*>(characters[p_id]);
+					if (npc->GetTarget() == player_id)
 					{
-						npc->target = INVALID_TARGET;	//NPC 타게팅대상이었다면 풀어준다.
+						npc->SetTarget(INVALID_TARGET);	//NPC 타게팅대상이었다면 풀어준다.
 					}
 				}
 				else {
@@ -337,14 +333,8 @@ int CPP_MonsterAttack(lua_State* L)
 			//플레이어가 안죽었으면 계속 공격
 			//고정형이든, 움직이던간에 한번 때렸으면 다시 때려야함.
 			//cout << "타이머넣어주는곳 3" << endl;
-			npc->attack_cooltime = chrono::system_clock::now() + 1000ms;
-			Timer_Event instq;
-			auto timing = chrono::system_clock::now() + 1000ms;
-			instq.player_id = npc->target;
-			instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;
-			instq.npc_id = npc_id;
-			instq.exec_time = timing;
-			timer_queue.push(instq);
+			Monster* Mnpc = reinterpret_cast<Monster*>(npc);
+			Mnpc->ReloadAttack();
 
 			auto player = reinterpret_cast<Player*>(characters[player_id]);
 			if (player->is_Healing == false)
@@ -367,27 +357,10 @@ int CPP_MonsterAttack(lua_State* L)
 	// 타겟 자체가 사라지는 경우도 있음 (플레이어가 죽어서) 그럼 넣을 필요 없음.
 	//하지만 어글 범위 안에 있다면~ Ai는 계속 돌아감. 
 	//어글범위안에도 없다면 ? 진짜 때릴 사람이 없는것. 타겟 없애줌.
-	if (npc->monMoveType == MonsterMoveType::MT_Siege)
+	Monster* Mnpc = reinterpret_cast<Monster*>(npc);
+	if (Mnpc->GetMonMoveType() == MonsterMoveType::MT_Siege)
 	{
-		ScriptNpc* Snpc = reinterpret_cast<ScriptNpc*>(npc);
-		if (npc->target != INVALID_TARGET)
-		{
-			if (is_Near_By_Range(npc->target, npc_id, Snpc->Peace_Notice_Range))
-			{
-				//어쨋든 얘도 공격을 시도하는것이므로 어택쿨타임을 돌려야함.
-				npc->attack_cooltime = chrono::system_clock::now() + 1000ms;
-				Timer_Event instq;
-				auto timing = chrono::system_clock::now() + 1000ms;
-				instq.player_id = Snpc->target;
-				instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;
-				instq.npc_id = npc_id;
-				instq.exec_time = timing;
-				timer_queue.push(instq);
-			}
-			else {
-				Snpc->target = INVALID_TARGET;
-			}
-		}
+		Mnpc->DeleteTarget();
 	}
 	}
 
@@ -406,7 +379,7 @@ int CPP_ChaseTarget(lua_State* L)
 	int movelimit = (int)lua_tointeger(L, -1);
 	lua_pop(L, 6);
 
-	ScriptNpc* npc = reinterpret_cast<ScriptNpc*>(characters[npc_id]);
+	Monster* npc = reinterpret_cast<Monster*>(characters[npc_id]);
 	Player* player = reinterpret_cast<Player*>(characters[player_id]);
 	// A*들어가야할 곳 
 	int normdx = 0;
@@ -488,34 +461,7 @@ int CPP_ChaseTarget(lua_State* L)
 	//타게팅 안풀리면 체이스로 계속오니까 피쓰풀이나 어그로나 다 1번정도만 시도 해줌.
 	//몬스터의 이동 사거리 밖으로 나가서 기다리는것, 
 	//어그로가 풀리고나서 어그로 범위 밖으로 나가면 어그로가 더이상 끌리지않는다.
-	npc->FailToChaseTarget += flag;	
-	if (npc->FailToChaseTarget > 1)
-	{
-		npc->target = INVALID_TARGET;
-		npc->isMoving = false;
-		npc->FailToChaseTarget = 0;
-		//찾는걸 포기. 피스풀은 평화를 좋아하기에,,
-		//어쨋든 ai를 다시 실행시킨다음 타겟이 -1이기때문에 
-		//어차피 이제 체이스 안하고,  랜덤무브할거임. 
-		//랜덤무브 하기위해 isMoving = false로 해줌.
-		Timer_Event instq;
-		instq.exec_time = chrono::system_clock::now() + 1000ms;
-		instq.player_id = INVALID_TARGET;
-		instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;
-		instq.npc_id = npc_id;
-		timer_queue.push(instq);
-	}
-	else {
-		//cout << "타이머 넣어주는곳 1" << endl;
-		//때리지는 못했지만 때리는 시도를 하려했으므로, 쿨타임을 넣어준다.
-		npc->attack_cooltime = chrono::system_clock::now() + 1000ms;
-		Timer_Event instq;
-		instq.exec_time = chrono::system_clock::now() + 1000ms; 
-		instq.player_id = npc->target;
-		instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;
-		instq.npc_id = npc_id;
-		timer_queue.push(instq);
-	}
+	npc->CheckMonsterChasing(flag);
 
 	return 0;
 }
@@ -651,13 +597,13 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 		}
 	}
 
-	Npc* npc = reinterpret_cast<Npc*>(characters[npc_id]);
+	Monster* npc = reinterpret_cast<Monster*>(characters[npc_id]);
 	npc->isMoving = false;
 	//시야에들어왔는지 확인하는 viewlist를 기반으로 
 	//공격 반경내에 들어왔는지 한번더 판별
 	unordered_set<int> AttackRangeList;
 	bool AttackFlag = false;
-	if (npc->monType == MonsterType::Agro)
+	if (npc->GetMonType() == MonsterType::Agro)
 	{
 		AngryMonster* monster = reinterpret_cast<AngryMonster*>(npc);
 		for (auto player_id : new_viewlist)
@@ -679,12 +625,12 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 			return;
 		npc->isMoving = true;
 
-		switch (npc->monType)
+		switch (npc->GetMonType())
 		{
 		case MonsterType::Peace:
 		{
 			//랜덤무브는 타겟이없다.
-			npc->target = INVALID_TARGET;
+			npc->SetTarget(INVALID_TARGET);
 			Timer_Event instq;
 			instq.exec_time = chrono::system_clock::now() + 1000ms;
 			instq.player_id = INVALID_TARGET;
@@ -698,16 +644,16 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 			if (AttackFlag)
 			{
 				//랜덤무브하다가 어그로 반경내에 들어왔다면 뷰리스트중 젤 앞에있는얘를 따라감.
-				npc->target = *new_viewlist.begin();
+				npc->SetTarget(*new_viewlist.begin());
 				Timer_Event instq;
 				instq.exec_time = chrono::system_clock::now() + 1000ms;
-				instq.player_id = npc->target;
+				instq.player_id = npc->GetTarget();
 				instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;
 				instq.npc_id = npc_id;
 				timer_queue.push(instq);
 			}
 			else {
-				npc->target = INVALID_TARGET;
+				npc->SetTarget(INVALID_TARGET);
 				Timer_Event instq;
 				instq.exec_time = chrono::system_clock::now() + 1000ms;
 				instq.player_id = INVALID_TARGET;
@@ -797,7 +743,7 @@ int CPP_BossDeBuff(lua_State* L)
 	int debuffTime = (int)lua_tointeger(L, -1);
 	lua_pop(L, 5);
 	Player* player = reinterpret_cast<Player*>(characters[player_id]);
-	Npc* npc = reinterpret_cast<Npc*>(characters[npc_id]);
+	Monster* npc = reinterpret_cast<Monster*>(characters[npc_id]);
 
 	switch (debuffType)
 	{
@@ -826,12 +772,7 @@ int CPP_BossDeBuff(lua_State* L)
 	}
 	}
 
-	Timer_Event instq;
-	instq.exec_time = chrono::system_clock::now() + 1000ms;
-	instq.player_id = npc->target;
-	instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;
-	instq.npc_id = npc_id;
-	timer_queue.push(instq);
+	npc->ReloadAttack();
 
 	return 0;
 }

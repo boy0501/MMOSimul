@@ -4,6 +4,7 @@
 #include "../../../../DB/DB.h"
 #include "../../../Object/Character/Player/Player.h"
 #include "../../../Object/Character/Npc/ScriptNpc/ScriptNpc.h"
+#include "../../../Object/Character/Npc/ScriptNpc/Monster/Monster.h"
 #include "../../../Object/Character/Npc/NormalNpc/NormalNpc.h"
 
 using namespace std;
@@ -116,7 +117,7 @@ void WorkerThread()
 			break;
 		}
 		case CMD_NPC_AI: {
-			Npc* npc = reinterpret_cast<Npc*>(characters[client_id]);
+			ScriptNpc* npc = reinterpret_cast<ScriptNpc*>(characters[client_id]);
 			//현재 모든 npc들이 다 스크립트 형식에 묶여서 이렇게 해줌. 
 			// 그게 아니라면? exp_over에 type을 넣고 스크립트에 묶여야할지 그냥 npc_move인지 골라야겠지.
 			npc->lua_lock.lock();
@@ -138,7 +139,7 @@ void WorkerThread()
 			break;
 		}
 		case CMD_NPC_RESPAWN: {
-			Npc* npc = reinterpret_cast<Npc*>(characters[client_id]);
+			Monster* npc = reinterpret_cast<Monster*>(characters[client_id]);
 			npc->hp = npc->maxhp;
 			if (npc->imageType == OBJECT_VERYANGRYMONSTER)
 				npc->imageType = OBJECT_ANGRYMONSTER;
@@ -193,13 +194,13 @@ void WorkerThread()
 
 			if (nearlist.size() > 0)
 			{
-				switch (npc->monType)
+				switch (npc->GetMonType())
 				{
 				case MonsterType::Peace:
 				{
 					//cout << "부활 후 움직임" << endl;
 					//랜덤무브는 타겟이없다.
-					npc->target = INVALID_TARGET;
+					npc->SetTarget(INVALID_TARGET);
 					Timer_Event instq;
 					instq.exec_time = chrono::system_clock::now() + 1000ms;
 					instq.player_id = INVALID_TARGET;
@@ -210,11 +211,10 @@ void WorkerThread()
 				break;
 				case MonsterType::Agro:
 				{
-
-					npc->target = *nearlist.begin();
+					npc->SetTarget(*nearlist.begin());
 					Timer_Event instq;
 					instq.exec_time = chrono::system_clock::now() + 1000ms;
-					instq.player_id = npc->target;
+					instq.player_id = npc->GetTarget();
 					instq.type = Timer_Event::TIMER_TYPE::TYPE_NPC_AI;
 					instq.npc_id = client_id;
 					timer_queue.push(instq);

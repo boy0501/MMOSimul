@@ -149,11 +149,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\BossMonster\BossMonster.cpp" />
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.cpp" />
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.cpp" />
     <ClCompile Include="Source\Algorithm\Astar.cpp" />
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\AngryMonster\AngryMonster.cpp" />
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\NormalMonster\NormalMonster.cpp" />
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\PlantMonster\PlantMonster.cpp" />
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\AngryMonster\AngryMonster.cpp" />
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\NormalMonster\NormalMonster.cpp" />
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\PlantMonster\PlantMonster.cpp" />
     <ClCompile Include="Script\cplustolua.cpp" />
     <ClCompile Include="Source\DB\DB.cpp" />
     <ClCompile Include="Source\Game\Network\Thread\TimerThread\TimerThread.cpp" />
@@ -168,11 +169,12 @@
     <ClCompile Include="Source\Game\Network\Network.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\BossMonster\BossMonster.h" />
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.h" />
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.h" />
     <ClInclude Include="Source\Algorithm\AStar.h" />
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\AngryMonster\AngryMonster.h" />
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\NormalMonster\NormalMonster.h" />
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\PlantMonster\PlantMonster.h" />
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\AngryMonster\AngryMonster.h" />
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\NormalMonster\NormalMonster.h" />
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\PlantMonster\PlantMonster.h" />
     <ClInclude Include="Script\cplustolua.h" />
     <ClInclude Include="Source\DB\DB.h" />
     <ClInclude Include="Source\Game\Network\Thread\TimerThread\TimerThread.h" />
@@ -200,6 +202,7 @@
     <None Include="Script\monster2.lua" />
     <None Include="Script\monster3.lua" />
     <None Include="Script\monster4.lua" />
+    <None Include="Script\QuestNPC0001.lua" />
     <None Include="Script\Sector1Stone.lua" />
     <None Include="Script\Sector2Stone.lua" />
     <None Include="Script\Sector3Stone.lua" />

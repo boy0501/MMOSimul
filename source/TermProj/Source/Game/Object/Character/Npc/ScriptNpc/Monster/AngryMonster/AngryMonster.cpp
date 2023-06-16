@@ -1,15 +1,15 @@
 #include <iostream>
 #include <random>
-#include "BossMonster.h"
+#include "AngryMonster.h"
 
 using namespace std;
 
 
-BossMonster::BossMonster(const char* scriptname, int n_id)
-	:ScriptNpc(scriptname, n_id)
+AngryMonster::AngryMonster(const char* scriptname, int n_id)
+	:Monster(scriptname, n_id)
 	, AgroRange(0)
 {
-	imageType = OBJECT_BOSS;
+	imageType = OBJECT_ANGRYMONSTER;
 	L = luaL_newstate();
 	luaL_openlibs(L);
 	string mScriptname{ "Script/" };
@@ -29,37 +29,40 @@ BossMonster::BossMonster(const char* scriptname, int n_id)
 	}
 
 	lua_getglobal(L, "Init");
-	lua_pcall(L, 0, 9, 0);
+	lua_pcall(L, 0, 11, 0);
 	bool spawntrigger = lua_toboolean(L, -1);
 	strcpy_s(name, 20, lua_tostring(L, -2));
-	auto spawnAreaY = lua_tointeger(L, -3);
-	auto spawnAreaX = lua_tointeger(L, -4);
+	auto spawnAreaCenterY = lua_tointeger(L, -3);
+	auto spawnAreaCenterX = lua_tointeger(L, -4);
 	level = lua_tointeger(L, -5);
 	maxhp = lua_tointeger(L, -6);
-	monType = (MonsterType)lua_tointeger(L, -7);
-	monMoveType = (MonsterMoveType)lua_tointeger(L, -8);
-	Peace_Notice_Range = lua_tointeger(L, -9);
-	lua_pop(L, 9);
+	AgroRange = lua_tointeger(L, -7);
+	monType = (MonsterType)lua_tointeger(L, -8);
+	monMoveType = (MonsterMoveType)lua_tointeger(L, -9);
+	int spawnwidth = lua_tointeger(L, -10);
+	int spawnheight = lua_tointeger(L, -11);
+	lua_pop(L, 11);
 
 	if (spawntrigger == false)
 	{
 		random_device rd;
 		mt19937 rng(rd());
-		uniform_int_distribution<int> RPos(-250, 250);
+		uniform_int_distribution<int> RX(spawnAreaCenterX - spawnwidth, spawnAreaCenterX + spawnwidth);
+		uniform_int_distribution<int> RY(spawnAreaCenterY - spawnheight, spawnAreaCenterY + spawnheight);
 		while (1) {
-			x = RPos(rng) + spawnAreaX;
-			y = RPos(rng) + spawnAreaY;
+			x = RX(rng);
+			y = RY(rng);
 			if (mMap[x][y] == 0)
 				break;
 		}
-
+		
 		//추후에 여기에서 바운더 처리 해줘야함. 
 		//x = rand() % WORLD_WIDTH;
 		//y = rand() % WORLD_HEIGHT;
 	}
 	else {
-		x = spawnAreaX;
-		y = spawnAreaY;
+		x = spawnAreaCenterX;
+		y = spawnAreaCenterY;
 	}
 
 	lua_register(L, "API_SendMessage", CPP_SendMessage);
@@ -72,12 +75,9 @@ BossMonster::BossMonster(const char* scriptname, int n_id)
 	lua_register(L, "API_get_MaxHp", CPP_get_MaxHp);
 	lua_register(L, "API_MonsterAttack", CPP_MonsterAttack);
 	lua_register(L, "API_ChaseTarget", CPP_ChaseTarget);
-	lua_register(L, "API_TelePortTarget", CPP_TelePortTarget);
-	lua_register(L, "API_BossDeBuff", CPP_BossDeBuff);
-	lua_register(L, "API_BossBuffMySight", CPP_BossBuffMySight);
 }
 
-BossMonster::~BossMonster()
+AngryMonster::~AngryMonster()
 {
 
 }

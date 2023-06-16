@@ -5,7 +5,7 @@
 using namespace std;
 
 PlantMonster::PlantMonster(const char* scriptname, int n_id)
-	:ScriptNpc(scriptname, n_id)
+	:Monster(scriptname, n_id)
 {
 	imageType = OBJECT_PLANT;
 	L = luaL_newstate();

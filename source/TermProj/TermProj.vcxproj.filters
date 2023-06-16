@@ -51,19 +51,22 @@
     <ClCompile Include="Source\DB\DB.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\PlantMonster\PlantMonster.cpp">
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\PlantMonster\PlantMonster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\NormalMonster\NormalMonster.cpp">
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\NormalMonster\NormalMonster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\AngryMonster\AngryMonster.cpp">
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\AngryMonster\AngryMonster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Algorithm\Astar.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\BossMonster\BossMonster.cpp">
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,19 +122,22 @@
     <ClInclude Include="Source\DB\DB.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\PlantMonster\PlantMonster.h">
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\PlantMonster\PlantMonster.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\NormalMonster\NormalMonster.h">
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\NormalMonster\NormalMonster.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\AngryMonster\AngryMonster.h">
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\AngryMonster\AngryMonster.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Algorithm\AStar.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\BossMonster\BossMonster.h">
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -151,5 +157,6 @@
     <None Include="Script\Sector1Stone.lua" />
     <None Include="Script\Sector2Stone.lua" />
     <None Include="Script\Sector3Stone.lua" />
+    <None Include="Script\QuestNPC0001.lua" />
   </ItemGroup>
 </Project>
