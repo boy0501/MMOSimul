@@ -28,9 +28,9 @@ void send_login_fail_packet(int player_id, int reason);
 void send_login_ok_packet(int player_id);
 void send_imgupdate_packet(int player_id, int updateCharacter_id);
 void send_buffUpdate_packet(int player_id, int updateCharacter_id);
-void send_npc_packet(int player_id);
+void send_npc_packet(int player_id,int npc_id);
 
-extern std::array<class Character* ,MAX_USER + MAX_NPC> characters;
+extern std::array<class Character* ,MAX_USER + MAX_NPC + MAX_CONVNPC> characters;
 extern std::vector<int> CSection[20][20];
 extern std::mutex section_lock[20][20];
 extern bool mMap[2000][2000];	//0이면 길, 1이면 벽 mMap[x][y]의 형태.

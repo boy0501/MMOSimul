@@ -72,6 +72,9 @@
     <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Algorithm\FindingNpc\FindingNpc.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Network\Thread\WorkerThread\WorkerThread.h">
@@ -144,6 +147,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Algorithm\FindingNpc\FindingNpc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

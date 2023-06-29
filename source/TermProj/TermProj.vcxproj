@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Algorithm\FindingNpc\FindingNpc.cpp" />
     <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.cpp" />
     <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.cpp" />
     <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="Source\Game\Network\Network.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Algorithm\FindingNpc\FindingNpc.h" />
     <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.h" />
     <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.h" />
     <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.h" />

@@ -564,7 +564,7 @@ void do_npc_move(int npc_id, int spawnX, int spawnY, int movelimit)
 	for (auto obj : characters) {
 		if (obj->_state != Character::STATE::ST_INGAME)
 			continue;
-		if (false == obj->is_player())
+		if (false == obj->is_player())	//플레이어 이후는 검사할 필요없으니 탈출
 			break;
 		if (true == is_Near(npc_id, obj->_id))
 			new_viewlist.insert(obj->_id);

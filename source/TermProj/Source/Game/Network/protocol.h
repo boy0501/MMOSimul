@@ -189,5 +189,6 @@ struct sc_packet_buffUpdate {
 struct sc_packet_npc {
 	unsigned char size;
 	char type;
+	int id;
 };
 #pragma pack(pop)

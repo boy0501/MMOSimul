@@ -12,8 +12,9 @@
 #include "../Object/Character/Npc/ScriptNpc/Monster/PlantMonster/PlantMonster.h"
 #include "../Object/Character/Npc/ScriptNpc/Monster/NormalMonster/NormalMonster.h"
 #include "../Object/Character/Npc/ScriptNpc/Monster/BossMonster/BossMonster.h"
-#include "../../../Script/cplustolua.h"
+#include "../../Algorithm/FindingNpc/FindingNpc.h"
 #include "../../DB/DB.h"
+#include "../../../Script/cplustolua.h"
 #pragma comment(lib,"lua54.lib")
 using namespace std;
 
@@ -202,12 +203,13 @@ void send_chat_packet(int player_id, int chatCharacter_id, void* msg)
 	player->sendPacket(&packet, sizeof(packet));
 }
 
-void send_npc_packet(int player_id)
+void send_npc_packet(int player_id,int npc_id)
 {
 	auto player = reinterpret_cast<Player*>(characters[player_id]);
 	sc_packet_npc packet;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_NPC;
+	packet.id = npc_id;
 	player->sendPacket(&packet, sizeof(packet));
 }
 
@@ -872,24 +874,11 @@ void process_packet(int client_id, unsigned char* p)
 		break;
 	}
 	case CS_PACKET_NPC_INTERACT: {
-		ScriptNpc* npc = reinterpret_cast<ScriptNpc*>(characters[client_id]);
-		//현재 모든 npc들이 다 스크립트 형식에 묶여서 이렇게 해줌. 
-		// 그게 아니라면? exp_over에 type을 넣고 스크립트에 묶여야할지 그냥 npc_move인지 골라야겠지.
-		npc->lua_lock.lock();
+		int npc_id = FindingNearNpc(client_id);
 
-		int player_id = 0;
-		memcpy(&player_id, wsa_ex->getBuf(), sizeof(int));
-		//cout << "몬스터 타겟 :" << player_id << endl;
-		lua_State* L = npc->L;
-		lua_getglobal(L, "event_timer_ai");
-		lua_pushnumber(L, player_id);
-		if (0 != lua_pcall(L, 1, 0, 0))
-		{
-			cout << lua_tostring(L, -1) << endl;
-			lua_pop(L, 1);
-		}
-		npc->lua_lock.unlock();
-		delete wsa_ex;
+		if (-1 == npc_id)	break;	//이상한 패킷이므로 무시 ex)가까운데에 npc가 없음.
+
+		send_npc_packet(client_id, npc_id);
 		break;
 	}
 	}
