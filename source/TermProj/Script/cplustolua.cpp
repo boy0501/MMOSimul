@@ -850,7 +850,7 @@ int CPP_NoticeWindowOK(lua_State* L)
 
 	lua_pop(L, 3);
 
-	send_npc_packet(player_id);
+	//send_npc_packet(player_id);
 
 	//int hp = characters[npc_id]->hp;
 	//lua_pushnumber(L, hp);

@@ -874,10 +874,14 @@ void process_packet(int client_id, unsigned char* p)
 		break;
 	}
 	case CS_PACKET_NPC_INTERACT: {
+		auto player = dynamic_cast<Player*>(character);
+		if (nullptr == player) break;
+
 		int npc_id = FindingNearNpc(client_id);
 
 		if (-1 == npc_id)	break;	//이상한 패킷이므로 무시 ex)가까운데에 npc가 없음.
 
+		player->SetInteractNPC(npc_id);
 		send_npc_packet(client_id, npc_id);
 		break;
 	}
@@ -928,20 +932,28 @@ void InitNPC()
 		npc->_id = CONVNPC_ID_START;
 		npc->_state = Character::STATE::ST_INGAME;
 		characters[CONVNPC_ID_START] = npc;
+		npc->SpawnNPC();
+		CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(CONVNPC_ID_START);
 	}
-	//for (int i = CONVNPC_ID_START; i <= CONVNPC_ID_END; ++i) {
-	//	ConvNpc* npc;
-	//	
-	//	npc->SpawnNPC();
-	//
-	//	npc->_id = i;
-	//	//npc->maxhp = 20;
-	//	npc->hp = npc->maxhp;
-	//	npc->_state = Character::STATE::ST_INGAME;
-	//
-	//	characters[i] = npc;
-	//	CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
-	//}
+	for (int i = CONVNPC_ID_START + 1; i <= CONVNPC_ID_END; ++i) {
+
+		ConvNpc* npc = new ConvNpc("0001.lua", i);
+		npc->_id = i;
+		npc->_state = Character::STATE::ST_FREE;
+		characters[i] = npc;
+
+		//ConvNpc* npc;
+		//
+		//npc->SpawnNPC();
+		//
+		//npc->_id = i;
+		////npc->maxhp = 20;
+		//npc->hp = npc->maxhp;
+		//npc->_state = Character::STATE::ST_INGAME;
+		//
+		//characters[i] = npc;
+		//CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
+	}
 
 	cout << "NPC Setting is Done" << endl;
 }

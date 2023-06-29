@@ -154,7 +154,7 @@ void send_npc_response_packet()
 }
 
 OBJECT avatar;
-OBJECT players[MAX_USER + MAX_NPC];
+OBJECT players[MAX_USER + MAX_NPC + MAX_CONVNPC];
 OBJECT rock[200000];
 
 OBJECT white_tile;
@@ -424,7 +424,9 @@ void ProcessPacket(char* ptr)
 		break;
 	}
 	case SC_PACKET_NPC: {
-		send_npc_response_packet();
+		sc_packet_npc* my_packet = reinterpret_cast<sc_packet_npc*>(ptr);
+
+		cout << "npc code: " << my_packet->id << endl;
 		break;
 	}
 	default:
@@ -647,7 +649,8 @@ int main()
 					send_attack_packet();
 					break;
 				case sf::Keyboard::Num8:
-					send_test_packet();
+					send_npc_packet();
+					break;
 				case sf::Keyboard::Escape:
 					window.close();
 					break;

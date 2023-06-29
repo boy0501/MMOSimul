@@ -19,7 +19,7 @@ Character::~Character()
 
 bool Character::is_Npc()
 {
-	return (_id >= NPC_ID_START) && (_id <= NPC_ID_END);
+	return (_id >= NPC_ID_START) && (_id <= CONVNPC_ID_END);
 }
 
 bool Character::is_player()

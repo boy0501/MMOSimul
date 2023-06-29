@@ -25,21 +25,17 @@ ConvNpc::ConvNpc(const char* scriptname, int n_id)
 		lua_pop(L, 1);
 	}
 
-	//lua_getglobal(L, "Init");
-	//lua_pcall(L, 0, 11, 0);
-	//bool spawntrigger = lua_toboolean(L, -1);
-	//strcpy_s(name, 20, lua_tostring(L, -2));
-	//auto spawnAreaCenterY = lua_tointeger(L, -3);
-	//auto spawnAreaCenterX = lua_tointeger(L, -4);
-	//level = lua_tointeger(L, -5);
-	//maxhp = lua_tointeger(L, -6);
-	//AgroRange = lua_tointeger(L, -7);
-	//monType = (MonsterType)lua_tointeger(L, -8);
-	//monMoveType = (MonsterMoveType)lua_tointeger(L, -9);
-	//int spawnwidth = lua_tointeger(L, -10);
-	//int spawnheight = lua_tointeger(L, -11);
-	//lua_pop(L, 11);
+	lua_getglobal(L, "Init");
+	lua_pcall(L, 0, 5, 0);
+	bool spawntrigger = lua_toboolean(L, -1);
+	strcpy_s(name, 20, lua_tostring(L, -2));
+	auto spawnAreaCenterY = lua_tointeger(L, -3);
+	auto spawnAreaCenterX = lua_tointeger(L, -4);
+	int npctype = lua_tointeger(L, -5);
+	lua_pop(L, 5);
 
+	x = spawnAreaCenterX;
+	y = spawnAreaCenterY;
 	//if (spawntrigger == false)
 	//{
 	//	random_device rd;
