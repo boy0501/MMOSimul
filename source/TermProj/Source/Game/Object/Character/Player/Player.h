@@ -20,5 +20,17 @@ public:
 	int exp;
 	void recvPacket();
 	void sendPacket(void* packet, int bytes);
+
+
+
+	//게터
+	int GetInteractNPC() const { return mInteractNPC; }
+
+
+	//세터
+	void SetInteractNPC(int InteractNPC) { mInteractNPC = InteractNPC; }
+
+protected:
+	int mInteractNPC;	//현재 대화중인 NPC code -1 = 대화하고 있지 않은 상태
 };
 

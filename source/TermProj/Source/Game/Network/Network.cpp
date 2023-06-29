@@ -7,6 +7,7 @@
 #include "../Object/Character/Player/Player.h"
 #include "../Object/Character/Npc/Npc.h"
 #include "../Object/Character/Npc/ScriptNpc/ScriptNpc.h"
+#include "../Object/Character/Npc/ScriptNpc/ConvNpc/ConvNpc.h"
 #include "../Object/Character/Npc/ScriptNpc/Monster/AngryMonster/AngryMonster.h"
 #include "../Object/Character/Npc/ScriptNpc/Monster/PlantMonster/PlantMonster.h"
 #include "../Object/Character/Npc/ScriptNpc/Monster/NormalMonster/NormalMonster.h"
@@ -21,7 +22,7 @@ SOCKET s_socket;
 bool mMap[2000][2000];
 
 concurrency::concurrent_priority_queue <Timer_Event> timer_queue;
-std::array<Character*, MAX_USER + MAX_NPC> characters;
+std::array<Character*, MAX_USER + MAX_NPC + MAX_CONVNPC> characters;
 vector<int> CSection[20][20];
 std::mutex section_lock[20][20];
 CRITICAL_SECTION db_cs;
@@ -198,6 +199,15 @@ void send_chat_packet(int player_id, int chatCharacter_id, void* msg)
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_CHAT;
 	strcpy_s(packet.message, 100, (char*)msg);
+	player->sendPacket(&packet, sizeof(packet));
+}
+
+void send_npc_packet(int player_id)
+{
+	auto player = reinterpret_cast<Player*>(characters[player_id]);
+	sc_packet_npc packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_NPC;
 	player->sendPacket(&packet, sizeof(packet));
 }
 
@@ -861,6 +871,27 @@ void process_packet(int client_id, unsigned char* p)
 
 		break;
 	}
+	case CS_PACKET_NPC_INTERACT: {
+		ScriptNpc* npc = reinterpret_cast<ScriptNpc*>(characters[client_id]);
+		//현재 모든 npc들이 다 스크립트 형식에 묶여서 이렇게 해줌. 
+		// 그게 아니라면? exp_over에 type을 넣고 스크립트에 묶여야할지 그냥 npc_move인지 골라야겠지.
+		npc->lua_lock.lock();
+
+		int player_id = 0;
+		memcpy(&player_id, wsa_ex->getBuf(), sizeof(int));
+		//cout << "몬스터 타겟 :" << player_id << endl;
+		lua_State* L = npc->L;
+		lua_getglobal(L, "event_timer_ai");
+		lua_pushnumber(L, player_id);
+		if (0 != lua_pcall(L, 1, 0, 0))
+		{
+			cout << lua_tostring(L, -1) << endl;
+			lua_pop(L, 1);
+		}
+		npc->lua_lock.unlock();
+		delete wsa_ex;
+		break;
+	}
 	}
 }
 
@@ -903,6 +934,26 @@ void InitNPC()
 		characters[i] = npc;
 		CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
 	}
+	{
+		ConvNpc* npc = new ConvNpc("0001.lua", CONVNPC_ID_START);
+		npc->_id = CONVNPC_ID_START;
+		npc->_state = Character::STATE::ST_INGAME;
+		characters[CONVNPC_ID_START] = npc;
+	}
+	//for (int i = CONVNPC_ID_START; i <= CONVNPC_ID_END; ++i) {
+	//	ConvNpc* npc;
+	//	
+	//	npc->SpawnNPC();
+	//
+	//	npc->_id = i;
+	//	//npc->maxhp = 20;
+	//	npc->hp = npc->maxhp;
+	//	npc->_state = Character::STATE::ST_INGAME;
+	//
+	//	characters[i] = npc;
+	//	CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
+	//}
+
 	cout << "NPC Setting is Done" << endl;
 }
 

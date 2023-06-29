@@ -69,6 +69,9 @@
     <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Network\Thread\WorkerThread\WorkerThread.h">
@@ -140,6 +143,9 @@
     <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Script\Include\lua54.lib">
@@ -157,6 +163,6 @@
     <None Include="Script\Sector1Stone.lua" />
     <None Include="Script\Sector2Stone.lua" />
     <None Include="Script\Sector3Stone.lua" />
-    <None Include="Script\QuestNPC0001.lua" />
+    <None Include="Script\NPC0001.lua" />
   </ItemGroup>
 </Project>

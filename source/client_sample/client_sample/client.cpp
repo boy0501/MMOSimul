@@ -144,6 +144,15 @@ public:
 	}
 };
 
+void send_npc_response_packet()
+{
+	cs_packet_npc_response packet;
+	packet.size = sizeof(packet);
+	packet.type = CS_PACKET_NPC_RESPONSE;
+	size_t sent = 0;
+	socket.send(&packet, sizeof(packet), sent);
+}
+
 OBJECT avatar;
 OBJECT players[MAX_USER + MAX_NPC];
 OBJECT rock[200000];
@@ -414,6 +423,10 @@ void ProcessPacket(char* ptr)
 
 		break;
 	}
+	case SC_PACKET_NPC: {
+		send_npc_response_packet();
+		break;
+	}
 	default:
 		printf("Unknown PACKET type [%d]\n", ptr[1]);
 	}
@@ -544,6 +557,15 @@ void send_attack_packet()
 	socket.send(&packet, sizeof(packet), sent);
 }
 
+
+void send_npc_packet()
+{
+	cs_packet_npc_interact packet;
+	packet.size = sizeof(packet);
+	packet.type = CS_PACKET_NPC_INTERACT;
+	size_t sent = 0;
+	socket.send(&packet, sizeof(packet), sent);
+}
 void send_move_packet(char dr)
 {
 	cs_packet_move packet;
@@ -624,6 +646,8 @@ int main()
 				case sf::Keyboard::A:
 					send_attack_packet();
 					break;
+				case sf::Keyboard::Num8:
+					send_test_packet();
 				case sf::Keyboard::Escape:
 					window.close();
 					break;

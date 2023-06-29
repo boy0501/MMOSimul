@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.cpp" />
     <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.cpp" />
     <ClCompile Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.cpp" />
     <ClCompile Include="Source\Algorithm\Astar.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="Source\Game\Network\Network.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\ConvNpc\ConvNpc.h" />
     <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\Monster.h" />
     <ClInclude Include="Source\Game\Object\Character\Npc\ScriptNpc\Monster\BossMonster\BossMonster.h" />
     <ClInclude Include="Source\Algorithm\AStar.h" />
@@ -202,7 +204,7 @@
     <None Include="Script\monster2.lua" />
     <None Include="Script\monster3.lua" />
     <None Include="Script\monster4.lua" />
-    <None Include="Script\QuestNPC0001.lua" />
+    <None Include="Script\NPC0001.lua" />
     <None Include="Script\Sector1Stone.lua" />
     <None Include="Script\Sector2Stone.lua" />
     <None Include="Script\Sector3Stone.lua" />

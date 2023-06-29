@@ -8,8 +8,11 @@ const int  MAX_NAME_SIZE = 20;
 const int  MAX_USER = 10000;
 const int MAX_CHAT_SIZE = 100;
 const int  MAX_NPC = 20'000;
+const int MAX_CONVNPC = 10;
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
+constexpr int CONVNPC_ID_START = MAX_USER + MAX_NPC;
+constexpr int CONVNPC_ID_END = CONVNPC_ID_START + MAX_CONVNPC - 1;
 
 constexpr int NPC_PLANT = NPC_ID_START + MAX_NPC / 3;
 constexpr int NPC_MONSTER = MAX_NPC / 3;
@@ -38,6 +41,10 @@ const char CS_PACKET_MOVE = 2;
 const char CS_PACKET_ATTACK = 3;
 const char CS_PACKET_CHAT = 4;
 const char CS_PACKET_TELEPORT = 5;
+const char CS_PACKET_NPC_RESPONSE = 6;
+const char CS_PACKET_NPC_INTERACT = 7;
+
+const char CS_TEST_PACKET = 120;
 
 
 const char SC_PACKET_LOGIN_OK = 1;
@@ -50,6 +57,7 @@ const char SC_PACKET_STATUS_CHANGE = 7;
 const char SC_PACKET_LOG = 8;
 const char SC_PACKET_IMGUPDATE = 9;
 const char SC_PACKET_BUFFUPDATE = 10;
+const char SC_PACKET_NPC = 11;
 
 #pragma pack (push, 1)
 struct cs_packet_login {
@@ -83,6 +91,24 @@ struct cs_packet_teleport {		//서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨�
 	char	type;
 };
 
+struct cs_packet_npc_response {
+	unsigned char size;
+	char	type;
+};
+
+struct cs_packet_npc_interact {
+	unsigned char size;
+	char type;
+};
+
+struct cs_packet_test {		//서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨다.
+	//더미클라에서 동접 테스트용으로 사용.
+	unsigned char size;
+	char	type;
+};
+
+
+//---------
 struct sc_packet_login_ok {
 	unsigned char size;
 	char type;
@@ -158,5 +184,10 @@ struct sc_packet_buffUpdate {
 	int id;
 	char buff;
 	char debuff;
+};
+
+struct sc_packet_npc {
+	unsigned char size;
+	char type;
 };
 #pragma pack(pop)

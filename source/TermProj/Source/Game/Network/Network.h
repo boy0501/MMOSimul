@@ -28,6 +28,7 @@ void send_login_fail_packet(int player_id, int reason);
 void send_login_ok_packet(int player_id);
 void send_imgupdate_packet(int player_id, int updateCharacter_id);
 void send_buffUpdate_packet(int player_id, int updateCharacter_id);
+void send_npc_packet(int player_id);
 
 extern std::array<class Character* ,MAX_USER + MAX_NPC> characters;
 extern std::vector<int> CSection[20][20];

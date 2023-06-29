@@ -11,6 +11,7 @@ Player::Player()
 	, bufftype(0)
 	, debufftype(0)
 	, moveSaveCnt(0)
+	, mInteractNPC(-1)
 {
 	hp = 30;
 }

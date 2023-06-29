@@ -19,3 +19,5 @@ int CPP_ChaseTarget(lua_State* L);
 int CPP_TelePortTarget(lua_State* L);
 int CPP_BossDeBuff(lua_State* L);
 int CPP_BossBuffMySight(lua_State* L);
+int CPP_NoticeWindow(lua_State* L);
+int CPP_NoticeWindowOK(lua_State* L);

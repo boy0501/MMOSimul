@@ -23,7 +23,16 @@ MonType = 0;    -- 0이면 Peace, 1이면 Agro
 MonMoveType = 1;-- 0이면 Siege, 1이면 Move
 
 function Init()
-    return spawnHeight,spawnWidth,MonMoveType,MonType,Init_MaxHP,Init_Level,spawnAreaCenterX,spawnAreaCenterY,Init_Name,Init_Accurate_Pos;
+    return spawnHeight,
+    spawnWidth,
+    MonMoveType,
+    MonType,
+    Init_MaxHP,
+    Init_Level,
+    spawnAreaCenterX,
+    spawnAreaCenterY,
+    Init_Name,
+    Init_Accurate_Pos;
 end
 
 function set_SpawnXY(x,y)
@@ -47,6 +56,18 @@ function get_Spawn_Pos()
     return spawnX,spawnY;
 end
 
+function event_interaction_0001_NPC(player)
+   
+    --API_NoticeWindow(player,"Push Next Button");
+    ret = API_NoticeWindowOK(player,"Test Conversation");
+    if(ret == 1) then
+        API_NoticeWindow(player, "You Push Yes Button");
+    else if(ret == 0) then
+        API_NoticeWindow(player, "You Push No button");
+    end
+
+end
+
 function event_timer_ai(target)
     if (is_active == false) then
         return;
@@ -56,19 +77,7 @@ function event_timer_ai(target)
        return;
    end
    
-   target_x = API_get_x(target);
-   target_y = API_get_y(target);
-   my_x = API_get_x(myid);
-   my_y = API_get_y(myid);
-   
-   if(target_x == my_x) then
-       if(target_y == my_y) then
-           API_MonsterAttack(myid,target,damage,1)
-           return;
-       end
-   end
-   
-   API_ChaseTarget(myid,target,spawnX,spawnY,move_limit);
+   API_SendMessageMySight(myid,"Hello",false);
 end
 
 function event_hit(player)
@@ -76,20 +85,4 @@ function event_hit(player)
         return;
     end
 
-
-    my_hp = API_get_hp(myid);
-    my_MaxHp = API_get_MaxHp(myid);
-    if(half_hp_trigger == false) then
-        if(my_hp <= my_MaxHp * 0.5) then
-            half_hp_trigger = true;
-            API_SendMessageMySight(myid,"Why you Bother Me!",false);
-        end
-    end
-
-
-    if (my_hp <= 0) then
-        half_hp_trigger = false;
-        is_active = false;
-        API_MonsterDie(myid,player);
-    end
 end

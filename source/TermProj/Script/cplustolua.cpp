@@ -831,3 +831,29 @@ int CPP_BossBuffMySight(lua_State* L)
 
 	return 0;
 }
+
+int CPP_NoticeWindow(lua_State* L)
+{
+
+	int player_id = (int)lua_tointeger(L, -2);
+	char* mess = (char*)lua_tostring(L, -1);
+	lua_pop(L, 3);
+
+	return 0;
+}
+
+int CPP_NoticeWindowOK(lua_State* L)
+{
+
+	int player_id = (int)lua_tointeger(L, -2);
+	char* mess = (char*)lua_tostring(L, -1);
+
+	lua_pop(L, 3);
+
+	send_npc_packet(player_id);
+
+	//int hp = characters[npc_id]->hp;
+	//lua_pushnumber(L, hp);
+
+	return 0;
+}
