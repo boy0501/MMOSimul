@@ -91,16 +91,16 @@ struct cs_packet_teleport {		//서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨�
 	char	type;
 };
 
-struct cs_packet_npc_response {
-	unsigned char size;
-	char	type;
-};
-
 struct cs_packet_npc_interact {
 	unsigned char size;
 	char type;
 };
 
+struct cs_packet_npc_response {
+	unsigned char size;
+	char type;
+	char response;
+};
 struct cs_packet_test {		//서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨다.
 	//더미클라에서 동접 테스트용으로 사용.
 	unsigned char size;

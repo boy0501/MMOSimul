@@ -835,9 +835,12 @@ int CPP_BossBuffMySight(lua_State* L)
 int CPP_NoticeWindow(lua_State* L)
 {
 
+	int ret = (int)lua_tointeger(L, -3);
 	int player_id = (int)lua_tointeger(L, -2);
 	char* mess = (char*)lua_tostring(L, -1);
-	lua_pop(L, 3);
+	lua_pop(L, 4);
+
+	cout << mess << "retcode: " <<ret << endl;
 
 	return 0;
 }
@@ -845,15 +848,40 @@ int CPP_NoticeWindow(lua_State* L)
 int CPP_NoticeWindowOK(lua_State* L)
 {
 
+	int npc_id = (int)lua_tointeger(L, -3);
 	int player_id = (int)lua_tointeger(L, -2);
 	char* mess = (char*)lua_tostring(L, -1);
 
-	lua_pop(L, 3);
+	lua_pop(L, 4);
 
-	//send_npc_packet(player_id);
+	cout << "OK Callin" << endl;
+	//send_npc_packet(player_id, npc_id);
 
 	//int hp = characters[npc_id]->hp;
 	//lua_pushnumber(L, hp);
 
+	return 0;
+}
+
+int CPP_SetCoroutine(lua_State* L)
+{
+	auto lthread = lua_tothread(L, -2);
+	int player_id = (int)lua_tointeger(L, -1);
+	lua_pop(L, 3);
+
+	auto player = reinterpret_cast<Player*>(characters[player_id]);
+	//lua_pushthread(L);
+	//lua_setglobal(L, player->name);
+	//lua_pop(L, 1);
+	return 0;
+}
+
+int CPP_GetCoroutine(lua_State* L)
+{
+	int player_id = (int)lua_tointeger(L, -1);
+	lua_pop(L, 2);
+
+	auto player = reinterpret_cast<Player*>(characters[player_id]);
+	//lua_pushthread(player->L);
 	return 0;
 }

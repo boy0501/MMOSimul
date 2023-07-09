@@ -24,6 +24,22 @@ void StmtErrorCheck(MYSQL_STMT* pstmt, const char* funcname)
 	fprintf(stderr, " %ld\n", mysql_stmt_errno(pstmt));
 }
 
+void errcheck(MYSQL* hmysql)
+{
+	auto result = mysql_store_result(hmysql);
+	if (NULL == result)
+	{
+		if (mysql_field_count(hmysql) == 0)
+		{
+			//printf("%lld rows affected\n",mysql_affected_rows(hmysql));
+		}
+	}
+	else {
+		fprintf(stderr, "more result or error\n");
+		fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+	}
+}
+
 void pstmtObjectExample()
 {
 	MYSQL_BIND bind_parameter[3];
@@ -396,9 +412,10 @@ int Login(const char* name, const char* pw, LoginInfo& p_info)
 		return -1;
 	}
 	// 
+
 	// Get Response
 	result = mysql_store_result(hmysql);
-	cout << mysql_affected_rows(hmysql) << endl;
+	//cout << mysql_affected_rows(hmysql) << endl;
 	if (mysql_affected_rows(hmysql) == 1)
 	{
 		MYSQL_FIELD* field;
@@ -420,13 +437,19 @@ int Login(const char* name, const char* pw, LoginInfo& p_info)
 
 
 		if (mysql_next_result(hmysql) >= 0)
-			fprintf(stderr, "more result or error\n");
+		{
+			errcheck(hmysql);
+		}
 
 		return 1;				//로그인 성공
 	}
 	else {
 
-		mysql_free_result(result);
+		if (mysql_next_result(hmysql) >= 0)
+		{
+			errcheck(hmysql);
+		}
+
 		return -1;				//로그인 실패 
 	}
 
@@ -470,7 +493,7 @@ int MakeCharacterAndLogin(const char* name,const char* pw, LoginInfo& p_info)
 	}
 	// Get Response
 	result = mysql_store_result(hmysql);
-	cout << mysql_affected_rows(hmysql) << endl;
+	//cout << mysql_affected_rows(hmysql) << endl;
 	if (mysql_affected_rows(hmysql) == 1)
 	{
 		MYSQL_FIELD* field;
@@ -492,17 +515,19 @@ int MakeCharacterAndLogin(const char* name,const char* pw, LoginInfo& p_info)
 
 
 		if (mysql_next_result(hmysql) >= 0)
-			fprintf(stderr, "more result or error\n");
+		{
+			errcheck(hmysql);
+		}
 
 
 		return 1;				//로그인 성공
 	}
 	else {
 
-		mysql_free_result(result);
-
 		if (mysql_next_result(hmysql) >= 0)
-			fprintf(stderr, "more result or error\n");
+		{
+			errcheck(hmysql);
+		}
 		return -1;				//로그인 실패 
 	}
 	return -1;

@@ -882,6 +882,54 @@ void process_packet(int client_id, unsigned char* p)
 		if (-1 == npc_id)	break;	//이상한 패킷이므로 무시 ex)가까운데에 npc가 없음.
 
 		player->SetInteractNPC(npc_id);
+
+		ScriptNpc* npc = reinterpret_cast<ScriptNpc*>(characters[npc_id]);
+		//현재 모든 npc들이 다 스크립트 형식에 묶여서 이렇게 해줌. 
+		npc->lua_lock.lock();
+		//player->L = lua_newthread(npc->L);
+		lua_State* L = npc->L;
+		lua_newtable(L);
+		lua_setglobal(L, player->name);
+		lua_getglobal(L, "event_interaction_0001_NPC");
+		lua_pushnumber(L, client_id);
+		lua_pushstring(L, player->name);
+		if (0 != lua_pcall(L, 2, 0, 0))
+		{
+			cout << lua_tostring(L, -1) << endl;
+			lua_pop(L, 1);
+		}
+		npc->lua_lock.unlock();
+
+
+		send_npc_packet(client_id, npc_id);
+		break;
+	}
+	case CS_PACKET_NPC_RESPONSE: {
+		cs_packet_npc_response* packet = reinterpret_cast<cs_packet_npc_response*>(p);
+		auto player = dynamic_cast<Player*>(character);
+		if (nullptr == player) break;
+
+		int npc_id = FindingNearNpc(client_id);
+
+		if (-1 == npc_id)	break;	//이상한 패킷이므로 무시 ex)가까운데에 npc가 없음.
+
+		player->SetInteractNPC(npc_id);
+
+		ScriptNpc* npc = reinterpret_cast<ScriptNpc*>(characters[npc_id]);
+		//현재 모든 npc들이 다 스크립트 형식에 묶여서 이렇게 해줌. 
+		npc->lua_lock.lock();
+		lua_State* L = npc->L;
+
+		lua_getglobal(L, "foas2");
+		lua_pushnumber(L, client_id);
+		lua_pushnumber(L, packet->response);
+
+		if (0 != lua_pcall(L, 2, 0, 0))
+		{
+			cout << lua_tostring(L, -1) << endl;
+			lua_pop(L, 1);
+		}
+		npc->lua_lock.unlock();
 		send_npc_packet(client_id, npc_id);
 		break;
 	}

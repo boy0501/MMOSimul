@@ -69,6 +69,9 @@ ConvNpc::ConvNpc(const char* scriptname, int n_id)
 	lua_register(L, "API_MonsterAttack", CPP_MonsterAttack);
 	lua_register(L, "API_ChaseTarget", CPP_ChaseTarget);
 	lua_register(L, "API_NoticeWindowOK", CPP_NoticeWindowOK);
+	lua_register(L, "API_NoticeWindow", CPP_NoticeWindow);
+	lua_register(L, "API_SetCoroutine", CPP_SetCoroutine);
+	lua_register(L, "API_GetCoroutine", CPP_GetCoroutine);
 }
 
 ConvNpc::~ConvNpc()

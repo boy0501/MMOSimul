@@ -144,15 +144,6 @@ public:
 	}
 };
 
-void send_npc_response_packet()
-{
-	cs_packet_npc_response packet;
-	packet.size = sizeof(packet);
-	packet.type = CS_PACKET_NPC_RESPONSE;
-	size_t sent = 0;
-	socket.send(&packet, sizeof(packet), sent);
-}
-
 OBJECT avatar;
 OBJECT players[MAX_USER + MAX_NPC + MAX_CONVNPC];
 OBJECT rock[200000];
@@ -568,6 +559,17 @@ void send_npc_packet()
 	size_t sent = 0;
 	socket.send(&packet, sizeof(packet), sent);
 }
+
+void send_npc_packet_response(char res)
+{
+	cs_packet_npc_response packet;
+	packet.size = sizeof(packet);
+	packet.type = CS_PACKET_NPC_RESPONSE;
+	packet.response = res;
+	size_t sent = 0;
+	socket.send(&packet, sizeof(packet), sent);
+}
+
 void send_move_packet(char dr)
 {
 	cs_packet_move packet;
@@ -592,9 +594,9 @@ void send_login_packet(string& name, string& pw)
 int main()
 {
 	wcout.imbue(locale("korean"));
-	string ip{ "" };
-	cout << "ip 입력 :";
-	cin >> ip;
+	string ip{ "127.0.0.1" };
+	//cout << "ip 입력 :";
+	//cin >> ip;
 	string name{ "PL" };
 	cout << "id 입력 :";
 	cin >> name;
@@ -650,6 +652,12 @@ int main()
 					break;
 				case sf::Keyboard::Num8:
 					send_npc_packet();
+					break;
+				case sf::Keyboard::Num9:
+					send_npc_packet_response(1);
+					break;
+				case sf::Keyboard::Num0:
+					send_npc_packet_response(0);
 					break;
 				case sf::Keyboard::Escape:
 					window.close();
