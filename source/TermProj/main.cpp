@@ -22,6 +22,7 @@ int main()
 	InitializeCriticalSection(&db_cs);
 	//mysqlTestCode();
 	InitializeDB();
+
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
 	s_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);

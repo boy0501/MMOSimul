@@ -210,6 +210,7 @@
     <None Include="Script\Sector1Stone.lua" />
     <None Include="Script\Sector2Stone.lua" />
     <None Include="Script\Sector3Stone.lua" />
+    <None Include="Script\NPCHelper.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

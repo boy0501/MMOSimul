@@ -1,3 +1,4 @@
+Npc = require('script/NPCHelper')
 
 myid = 99999;
 automove = false;
@@ -21,9 +22,8 @@ Init_Accurate_Pos = true;  --false면 Area근처에, true면 정확히 그자리에
 
 NpcType = 0;    -- 0이면 Peace, 1이면 Agro
 MonMoveType = 1;-- 0이면 Siege, 1이면 Move
-
+interactfunc = nil;
 user = {};
-
 function Init()
     return NpcType,
     spawnAreaCenterX,
@@ -53,24 +53,9 @@ function get_Spawn_Pos()
     return spawnX,spawnY;
 end
 
---function event_interaction_0001_NPC(player)   
---    --API_NoticeWindow(player,"Push Next Button");
---    
---     ret = API_NoticeWindowOK(myid,player,"Test Conversation");
---     if(ret == 1) then
---         API_NoticeWindow(ret,player, "You Push Yes Button");
---     elseif(ret == 0) then
---         API_NoticeWindow(ret,player, "You Push No button");
---     else 
---         API_NoticeWindow(ret,player, "err ");
---     end
---    
---end
-
-
-function foas(player)
-    ret = API_NoticeWindowOK(myid,player,"Test Conversation");
-    ret = coroutine.yield()
+--그저 코루틴 덩어리 함수 
+interactfunc = function(player)
+    local ret = Npc.API_NoticeWindowOK(myid,player,"Test Conversation");
 
     if(ret == 1) then
         API_NoticeWindow(ret,player, "You Push Yes Button");
@@ -81,23 +66,16 @@ function foas(player)
     end
 end
 
-function event_interaction_0001_NPC(player)   
-    --API_NoticeWindow(player,"Push Next Button");
-    
-   user[player] = coroutine.create(foas);
-   API_SetCoroutine(co1,player);
-   --print(dummy)
-   --print(res);
-   coroutine.resume(user[player],player);
-    
+--클릭시 불리는 함수 (필수)
+function event_interaction(player)
+    user[player] = Npc.API_DialogRequest(player,interactfunc);
 end
 
-function foas2(player, ret)
-   --trd = API_GetCoroutine(player);
-  print(user[player]);
-  print(coroutine.resume(user[player],ret));
-    
+--dialog응답시 불리는 함수 (필수)
+function event_interaction_user_response(player, ret)
+    Npc.API_DialogResponse(user[player],ret)    
 end
+
 
 function event_timer_ai(target)
     if (is_active == false) then

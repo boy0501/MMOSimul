@@ -890,7 +890,7 @@ void process_packet(int client_id, unsigned char* p)
 		lua_State* L = npc->L;
 		lua_newtable(L);
 		lua_setglobal(L, player->name);
-		lua_getglobal(L, "event_interaction_0001_NPC");
+		lua_getglobal(L, "event_interaction");
 		lua_pushnumber(L, client_id);
 		lua_pushstring(L, player->name);
 		if (0 != lua_pcall(L, 2, 0, 0))
@@ -920,7 +920,7 @@ void process_packet(int client_id, unsigned char* p)
 		npc->lua_lock.lock();
 		lua_State* L = npc->L;
 
-		lua_getglobal(L, "foas2");
+		lua_getglobal(L, "event_interaction_user_response");
 		lua_pushnumber(L, client_id);
 		lua_pushnumber(L, packet->response);
 

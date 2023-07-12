@@ -25,8 +25,16 @@ ConvNpc::ConvNpc(const char* scriptname, int n_id)
 		lua_pop(L, 1);
 	}
 
+
+	//lua_register(L, "API_Require", CPP_Require);
+
 	lua_getglobal(L, "Init");
-	lua_pcall(L, 0, 5, 0);
+
+	if (0 != lua_pcall(L, 0, 5, 0))
+	{
+		cout << lua_tostring(L, -1) << endl;
+		lua_pop(L, 1);
+	}
 	bool spawntrigger = lua_toboolean(L, -1);
 	strcpy_s(name, 20, lua_tostring(L, -2));
 	auto spawnAreaCenterY = lua_tointeger(L, -3);
