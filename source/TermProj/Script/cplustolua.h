@@ -21,6 +21,3 @@ int CPP_BossDeBuff(lua_State* L);
 int CPP_BossBuffMySight(lua_State* L);
 int CPP_NoticeWindow(lua_State* L);
 int CPP_NoticeWindowOK(lua_State* L);
-int CPP_SetCoroutine(lua_State* L);
-int CPP_GetCoroutine(lua_State* L);
-int CPP_Require(lua_State* L);
