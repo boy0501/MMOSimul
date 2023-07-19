@@ -27,6 +27,9 @@
     <ClCompile Include="client.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess2.png">
@@ -275,6 +278,9 @@
       <Filter>SFML\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\TermProj\Source\Game\Network\protocol.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

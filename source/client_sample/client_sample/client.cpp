@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <fstream>
+#include "Button.h"
 using namespace std;
 
 #ifdef _DEBUG
@@ -41,6 +42,7 @@ int g_y_origin;
 sf::RenderWindow* g_window;
 sf::Font g_font;
 sf::Text mLevel;
+vector<Button*> Buttons;
 
 class OBJECT {
 private:
@@ -164,6 +166,7 @@ sf::Texture* veryangryPig;
 sf::Texture* Boss1;
 sf::Texture* PowerUp;
 sf::Texture* Stunned;
+sf::Texture* Bimg;
 int objcount = 0;
 void map_initialize()
 {
@@ -208,6 +211,7 @@ void client_initialize()
 	Boss1 = new sf::Texture;
 	PowerUp = new sf::Texture;
 	Stunned = new sf::Texture;
+	Bimg = new sf::Texture;
 	if (false == g_font.loadFromFile("cour.ttf")) {
 		cout << "Font Loading Error!\n";
 		while (true);
@@ -226,8 +230,13 @@ void client_initialize()
 	err = Boss1->loadFromFile("Boss1.png");
 	err = PowerUp->loadFromFile("PowerUp.png");
 	err = Stunned->loadFromFile("Stunned.png");
+	err = Bimg->loadFromFile("button.png");
 	cout << err << endl;
 	map_initialize();
+	{
+		Button* b = new Button(Bimg, Bimg, "hi", sf::Vector2f(10, 10));
+		Buttons.push_back(b);
+	}
 
 	mLevel.setFont(g_font);
 	mLevel.setColor(sf::Color(232, 188, 7));
@@ -253,6 +262,9 @@ void client_finish()
 	delete plant;
 	delete pig;
 	delete angrypig;
+	delete Bimg;
+	for (auto b : Buttons)
+		delete b;
 }
 
 void ProcessPacket(char* ptr)
@@ -538,6 +550,10 @@ bool client_main()
 	mLevel.setString(buf);
 	g_window->draw(mLevel);
 
+	for (auto& button : Buttons)
+	{
+		g_window->draw(*button->getSprite());
+	}
 	return true;
 }
 
@@ -632,6 +648,10 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+			if (event.type == sf::Event::MouseButtonPressed) {
+				for (auto& b : Buttons)
+					b->checkClick(sf::Mouse::getPosition()- window.getPosition());
+			}
 			if (event.type == sf::Event::KeyPressed) {
 				int direction = -1;
 				switch (event.key.code) {
