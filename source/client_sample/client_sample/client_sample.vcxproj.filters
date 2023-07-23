@@ -30,6 +30,9 @@
     <ClCompile Include="Button.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Dialog.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess2.png">
@@ -281,6 +284,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

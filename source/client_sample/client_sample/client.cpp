@@ -2,9 +2,11 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 #include <iostream>
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include "Button.h"
+#include "Dialog.h"
 using namespace std;
 
 #ifdef _DEBUG
@@ -43,6 +45,7 @@ sf::RenderWindow* g_window;
 sf::Font g_font;
 sf::Text mLevel;
 vector<Button*> Buttons;
+vector<Dialog*> Dialogs;
 
 class OBJECT {
 private:
@@ -166,7 +169,7 @@ sf::Texture* veryangryPig;
 sf::Texture* Boss1;
 sf::Texture* PowerUp;
 sf::Texture* Stunned;
-sf::Texture* Bimg;
+sf::Texture* Bimg,*Bdownimg,*Dlgimg;
 int objcount = 0;
 void map_initialize()
 {
@@ -212,6 +215,8 @@ void client_initialize()
 	PowerUp = new sf::Texture;
 	Stunned = new sf::Texture;
 	Bimg = new sf::Texture;
+	Bdownimg = new sf::Texture;
+	Dlgimg = new sf::Texture;
 	if (false == g_font.loadFromFile("cour.ttf")) {
 		cout << "Font Loading Error!\n";
 		while (true);
@@ -231,11 +236,24 @@ void client_initialize()
 	err = PowerUp->loadFromFile("PowerUp.png");
 	err = Stunned->loadFromFile("Stunned.png");
 	err = Bimg->loadFromFile("button.png");
+	err = Bdownimg->loadFromFile("buttondown.png");
+	err = Dlgimg->loadFromFile("dialog.png");
 	cout << err << endl;
 	map_initialize();
 	{
-		Button* b = new Button(Bimg, Bimg, "hi", sf::Vector2f(10, 10));
+		sf::Vector2f dlgpos = sf::Vector2f(0, 700);
+		Button* b = new Button(Bimg, Bdownimg, "yes", dlgpos + sf::Vector2f(850, 250), g_font, ButtonType::yes);
 		Buttons.push_back(b);
+
+		b = new Button(Bimg, Bdownimg, "no", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::no);
+		Buttons.push_back(b);
+		
+		b = new Button(Bimg, Bdownimg, "next", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::next);
+		Buttons.push_back(b);
+
+		Dialog* d = new Dialog(Dlgimg, dlgpos, Buttons[0], Buttons[1], Buttons[2]);
+		d->MakeDlg("Curious Monster : \n\rHi Sumin i am Curious Monster\n\r Plz Help me for your owner? maybe if you can i will give you little exp", DialogType::Select, g_font);
+		Dialogs.push_back(d);
 	}
 
 	mLevel.setFont(g_font);
@@ -263,6 +281,7 @@ void client_finish()
 	delete pig;
 	delete angrypig;
 	delete Bimg;
+	delete Bdownimg;
 	for (auto b : Buttons)
 		delete b;
 }
@@ -462,6 +481,19 @@ void process_data(char* net_buf, size_t io_byte)
 	}
 }
 
+void deleteObject()
+{
+	Buttons.erase(remove_if(Buttons.begin(), Buttons.end(), [](Button* t) {
+		StateType isdelete = t->getSType();
+		if (isdelete == StateType::deleted)
+		{
+			delete t;
+			return true;
+		}
+		return false;
+	}),Buttons.end());
+}
+
 bool client_main()
 {
 	char net_buf[BUF_SIZE];
@@ -552,8 +584,17 @@ bool client_main()
 
 	for (auto& button : Buttons)
 	{
-		g_window->draw(*button->getSprite());
+		//button->Draw(*g_window);
 	}
+
+	for (auto& dlg : Dialogs)
+	{
+		dlg->Draw(*g_window);
+	}
+
+	deleteObject();
+
+
 	return true;
 }
 
@@ -648,10 +689,28 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
-			if (event.type == sf::Event::MouseButtonPressed) {
+			//---mouse
+			switch (event.type)
+			{
+			case sf::Event::MouseButtonPressed: {
 				for (auto& b : Buttons)
-					b->checkClick(sf::Mouse::getPosition()- window.getPosition());
+					b->checkClickButtonDown(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				break;
 			}
+			case sf::Event::MouseButtonReleased: {
+				for (auto& b : Buttons)
+					b->checkClickButtonUp(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				break;
+			}
+			case sf::Event::MouseMoved:{
+				for (auto& b : Buttons)
+					b->checkHoverOut(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				break;
+			}
+			}
+
+
+			//--keyboard
 			if (event.type == sf::Event::KeyPressed) {
 				int direction = -1;
 				switch (event.key.code) {
@@ -666,6 +725,9 @@ int main()
 					break;
 				case sf::Keyboard::Down:
 					direction = 1;
+					break;
+				case sf::Keyboard::Num5:
+					Buttons[0]->Destroy();
 					break;
 				case sf::Keyboard::A:
 					send_attack_packet();

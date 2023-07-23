@@ -122,6 +122,7 @@
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="Dialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess2.png" />
@@ -130,6 +131,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\TermProj\Source\Game\Network\protocol.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Dialog.h" />
     <ClInclude Include="include\SFML\Config.hpp" />
     <ClInclude Include="include\SFML\Graphics.hpp" />
     <ClInclude Include="include\SFML\Graphics\BlendMode.hpp" />
