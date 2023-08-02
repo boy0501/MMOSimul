@@ -20,6 +20,10 @@ Dialog::~Dialog()
 
 void Dialog::MakeDlg(std::string str, DialogType type, sf::Font& font)
 {
+	YesButton->ConnectFunc(&Dialog::PushYes);
+	NoButton->ConnectFunc(&Dialog::PushNo);
+	NextButton->ConnectFunc(&Dialog::PushNext);
+
 	std::pair<sf::Text*, DialogType> dlg;
 	sf::Text* dt = dlg.first = new sf::Text();
 	dlg.second = type;
@@ -84,6 +88,19 @@ void Dialog::Draw(sf::RenderWindow& window)
 }
 
 void Dialog::SetString(std::string& str)
+{
+}
+
+void Dialog::PushYes(Button* button)
+{
+	
+}
+
+void Dialog::PushNo(Button* button)
+{
+}
+
+void Dialog::PushNext(Button* button)
 {
 }
 

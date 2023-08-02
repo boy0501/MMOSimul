@@ -1,7 +1,8 @@
 #include "Button.h"
 #include "Dialog.h"
+#include <functional>
 #include <iostream>
-Button::Button(sf::Texture* normal, sf::Texture* clicked, std::string words, sf::Vector2f location, sf::Font& font,ButtonType type,Dialog* dlg): 
+Button::Button(sf::Texture* normal, sf::Texture* clicked, std::string words, sf::Vector2f location, sf::Font& font,ButtonType type, Dialog* dlg):
     mBType(type),
     mSType(StateType::disable),
     pDlg(dlg)
@@ -84,6 +85,12 @@ void Button::setSType(StateType state)
 {
     mSType = state;
 }
+
+void Button::ConnectFunc(bhandler func)
+{
+    OnPress = func;
+}
+
 bool Button::getVar() {
     return current;
 }
@@ -101,21 +108,8 @@ sf::Text* Button::getText() {
 
 void Button::ButtonPush()
 {
-    switch (mBType)
-    {
-    case ButtonType::next:
-    {
-        break;
-    }
-    case ButtonType::yes:
-    {
-        break;
-    }
-    case ButtonType::no:
-    {
-        break;
-    }
-    }
+    if (OnPress)
+        OnPress(this);
 
     if (pDlg != nullptr)
         pDlg->NextDlg();

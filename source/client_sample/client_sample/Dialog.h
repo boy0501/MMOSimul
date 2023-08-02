@@ -8,7 +8,7 @@ enum class DialogType{
 	Select = 2
 };
 
-class Dialog
+class Dialog 
 {
 public:
 	Dialog(sf::Texture* Board, sf::Vector2f location,class Button* YesB, class Button* NoB, class Button* NextB);
@@ -19,6 +19,9 @@ public:
 	void Draw(sf::RenderWindow& window);
 	void SetString(std::string& str);
 
+	static void PushYes(class Button* button);
+	static void PushNo(class Button* button);
+	static void PushNext(class Button* button);
 private:
 
 	//DialogType mType; // 1 - Normal Dialog, 2 - select Dialog
@@ -29,5 +32,6 @@ private:
 	std::vector<std::pair<sf::Text*, DialogType>> mDlg;
 	int mCurrDlgNum;
 	bool BeDelete = false;
+
 };
 

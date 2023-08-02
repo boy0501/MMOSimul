@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-
 enum class ButtonType {
     next = 1,
     yes = 2,
@@ -16,9 +15,12 @@ enum class StateType {
     
 };
 
+class Button;
+typedef void (*bhandler)(Button*);
+
 class Button {
 public:
-    Button(sf::Texture* normal, sf::Texture* clicked, std::string, sf::Vector2f location,sf::Font& font,ButtonType type,class Dialog* dlg = nullptr);
+    Button(sf::Texture* normal, sf::Texture* clicked, std::string, sf::Vector2f location,sf::Font& font,ButtonType type, class Dialog* dlg = nullptr);
     ~Button();
 
 
@@ -34,18 +36,24 @@ public:
     void setFont(sf::Font font);
     void setSType(StateType state);
 
+    void ConnectFunc(bhandler func);
+
+
+
     bool getVar();
     StateType getSType();
     sf::Sprite* getSprite();
     sf::Text* getText();
+
 private:
     void ButtonPush();
     sf::Sprite normal;
     sf::Sprite clicked;
     sf::Sprite* currentSpr;
     sf::Text String;
-    class Dialog* pDlg = nullptr; //parent
+    class Dialog* pDlg = nullptr; //parent 원래는 widget의 최 상단을 가리켜야하지만.. 임시로 만든 클라프로그램이므로
     bool current;
     ButtonType mBType;
     StateType mSType;
+    bhandler OnPress;
 };

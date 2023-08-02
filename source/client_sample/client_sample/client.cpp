@@ -1,6 +1,7 @@
 #define SFML_STATIC 1
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
+#include <functional>
 #include <iostream>
 #include <algorithm>
 #include <chrono>
@@ -254,6 +255,7 @@ void client_initialize()
 		Dialog* d = new Dialog(Dlgimg, dlgpos, Buttons[0], Buttons[1], Buttons[2]);
 		d->MakeDlg("Curious Monster : \n\rHi Sumin i am Curious Monster\n\r Plz Help me for your owner? maybe if you can i will give you little exp", DialogType::Select, g_font);
 		Dialogs.push_back(d);
+
 	}
 
 	mLevel.setFont(g_font);
