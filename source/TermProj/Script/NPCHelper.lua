@@ -7,9 +7,9 @@ function Npc.API_NoticeWindowOK(myid,player,text)
     return ret
 end
 
-function Npc.API_NoticeWindow(ret,player,text)
+function Npc.API_NoticeWindow(myid,player,text)
 
-    API_NoticeWindow(ret,player,text)
+    API_NoticeWindow(myid,player,text)
 end
 
 function Npc.API_DialogResponse(cohandle,ret)

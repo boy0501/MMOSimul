@@ -28,7 +28,7 @@ void send_login_fail_packet(int player_id, int reason);
 void send_login_ok_packet(int player_id);
 void send_imgupdate_packet(int player_id, int updateCharacter_id);
 void send_buffUpdate_packet(int player_id, int updateCharacter_id);
-void send_npc_packet(int player_id,int npc_id);
+void send_npc_dialog_packet(int player_id,int npc_id,char dlg_type, void* msg);
 
 extern std::array<class Character* ,MAX_USER + MAX_NPC + MAX_CONVNPC> characters;
 extern std::vector<int> CSection[20][20];
@@ -46,7 +46,7 @@ class WSA_OVER_EX {
 	unsigned char _buf[BUFSIZE];
 public:
 	WSA_OVER_EX() = default;
-	WSA_OVER_EX(COMMAND_IOCP cmd, char bytes, void* msg);
+	WSA_OVER_EX(COMMAND_IOCP cmd, unsigned char bytes, void* msg);
 	~WSA_OVER_EX();
 
 	WSAOVERLAPPED& getWsaOver() { return _wsaover; }

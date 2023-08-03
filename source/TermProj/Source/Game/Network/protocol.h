@@ -57,7 +57,7 @@ const char SC_PACKET_STATUS_CHANGE = 7;
 const char SC_PACKET_LOG = 8;
 const char SC_PACKET_IMGUPDATE = 9;
 const char SC_PACKET_BUFFUPDATE = 10;
-const char SC_PACKET_NPC = 11;
+const char SC_PACKET_NPC_DIALOG = 11;
 
 #pragma pack (push, 1)
 struct cs_packet_login {
@@ -186,9 +186,11 @@ struct sc_packet_buffUpdate {
 	char debuff;
 };
 
-struct sc_packet_npc {
+struct sc_packet_npc_dialog {
 	unsigned char size;
 	char type;
-	int id;
+	char dlgtype;	//1 normal 2 select
+	char msg[200];
+	int npc_id;
 };
 #pragma pack(pop)

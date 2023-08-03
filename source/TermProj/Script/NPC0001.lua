@@ -57,13 +57,19 @@ end
 interactfunc = function(player)
     local ret = Npc.API_NoticeWindowOK(myid,player,"Test Conversation");
 
-    if(ret == 1) then
-        API_NoticeWindow(ret,player, "You Push Yes Button");
-    elseif(ret == 0) then
-        API_NoticeWindow(ret,player, "You Push No button");
+    if(ret == 0) then
+        API_NoticeWindow(myid,player, "You Push No Button");
+    elseif(ret == 1) then
+        API_NoticeWindow(myid,player, "You Push Yes button");
     else 
-        API_NoticeWindow(ret,player, "err ");
+        API_NoticeWindow(myid,player, "err ");
     end
+    API_NoticeWindow(myid,player, "Adding Text");
+    API_NoticeWindow(myid,player, "Adding Text two");
+    API_NoticeWindow(myid,player, "Adding Threee");
+
+    Npc.API_NoticeWindowOK(myid,player,"Test Conversation Two");
+    
 end
 
 --클릭시 불리는 함수 (필수)

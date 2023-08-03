@@ -835,12 +835,13 @@ int CPP_BossBuffMySight(lua_State* L)
 int CPP_NoticeWindow(lua_State* L)
 {
 
-	int ret = (int)lua_tointeger(L, -3);
+	int npc_id = (int)lua_tointeger(L, -3);
 	int player_id = (int)lua_tointeger(L, -2);
 	char* mess = (char*)lua_tostring(L, -1);
 	lua_pop(L, 4);
 
-	cout << mess << "retcode: " <<ret << endl;
+	cout << mess << "msg " << endl;
+	send_npc_dialog_packet(player_id, npc_id, 1, mess);
 
 	return 0;
 }
@@ -855,7 +856,7 @@ int CPP_NoticeWindowOK(lua_State* L)
 	lua_pop(L, 4);
 
 	cout << "OK Callin" << endl;
-	//send_npc_packet(player_id, npc_id);
+	send_npc_dialog_packet(player_id, npc_id, 2, mess);
 
 	//int hp = characters[npc_id]->hp;
 	//lua_pushnumber(L, hp);

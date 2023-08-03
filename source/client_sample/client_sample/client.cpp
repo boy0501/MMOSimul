@@ -6,8 +6,10 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <unordered_map>
 #include "Button.h"
 #include "Dialog.h"
+#include "Network.h"
 using namespace std;
 
 #ifdef _DEBUG
@@ -27,7 +29,6 @@ using namespace std;
 #pragma warning (disable:4996)
 #include "../../TermProj/Source/Game/Network/protocol.h"
 
-sf::TcpSocket socket;
 
 constexpr auto BUF_SIZE = 256;
 constexpr auto SCREEN_WIDTH = 17;
@@ -45,8 +46,8 @@ int g_y_origin;
 sf::RenderWindow* g_window;
 sf::Font g_font;
 sf::Text mLevel;
-vector<Button*> Buttons;
-vector<Dialog*> Dialogs;
+vector<Widget*> Widgets;
+
 
 class OBJECT {
 private:
@@ -64,6 +65,7 @@ public:
 	short level;
 	short hp, maxhp;
 	int exp;
+
 
 	OBJECT(sf::Texture& t, int x, int y, int x2, int y2) {
 		m_showing = false;
@@ -241,22 +243,7 @@ void client_initialize()
 	err = Dlgimg->loadFromFile("dialog.png");
 	cout << err << endl;
 	map_initialize();
-	{
-		sf::Vector2f dlgpos = sf::Vector2f(0, 700);
-		Button* b = new Button(Bimg, Bdownimg, "yes", dlgpos + sf::Vector2f(850, 250), g_font, ButtonType::yes);
-		Buttons.push_back(b);
 
-		b = new Button(Bimg, Bdownimg, "no", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::no);
-		Buttons.push_back(b);
-		
-		b = new Button(Bimg, Bdownimg, "next", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::next);
-		Buttons.push_back(b);
-
-		Dialog* d = new Dialog(Dlgimg, dlgpos, Buttons[0], Buttons[1], Buttons[2]);
-		d->MakeDlg("Curious Monster : \n\rHi Sumin i am Curious Monster\n\r Plz Help me for your owner? maybe if you can i will give you little exp", DialogType::Select, g_font);
-		Dialogs.push_back(d);
-
-	}
 
 	mLevel.setFont(g_font);
 	mLevel.setColor(sf::Color(232, 188, 7));
@@ -284,7 +271,7 @@ void client_finish()
 	delete angrypig;
 	delete Bimg;
 	delete Bdownimg;
-	for (auto b : Buttons)
+	for (auto b : Widgets)
 		delete b;
 }
 
@@ -447,10 +434,33 @@ void ProcessPacket(char* ptr)
 
 		break;
 	}
-	case SC_PACKET_NPC: {
-		sc_packet_npc* my_packet = reinterpret_cast<sc_packet_npc*>(ptr);
+	case SC_PACKET_NPC_DIALOG: {
+		sc_packet_npc_dialog* my_packet = reinterpret_cast<sc_packet_npc_dialog*>(ptr);
+		auto dlg = m_npcdlg[my_packet->npc_id];
+		if (dlg != nullptr)
+		{
+			dlg->AddDlg(my_packet->msg, static_cast<DialogType>(my_packet->dlgtype), g_font);
+		}
+		else {
+			sf::Vector2f dlgpos = sf::Vector2f(0, 700);
+			Button* b1 = new Button(Bimg, Bdownimg, "yes", dlgpos + sf::Vector2f(850, 250), g_font, ButtonType::yes);
+			Widgets.push_back(b1);
 
-		cout << "npc code: " << my_packet->id << endl;
+			Button* b2 = new Button(Bimg, Bdownimg, "no", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::no);
+			Widgets.push_back(b2);
+
+			Button* b3 = new Button(Bimg, Bdownimg, "next", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::next);
+			Widgets.push_back(b3);
+
+			Dialog* d = new Dialog(Dlgimg, dlgpos,my_packet->npc_id, b1, b2, b3);
+
+			d->MakeDlg(my_packet->msg, static_cast<DialogType>(my_packet->dlgtype), g_font);
+			Widgets.push_back(d);
+
+			m_npcdlg[my_packet->npc_id] = d;
+		}
+
+		cout << "npc code: " << my_packet->npc_id << endl;
 		break;
 	}
 	default:
@@ -458,9 +468,9 @@ void ProcessPacket(char* ptr)
 	}
 }
 
-void process_data(char* net_buf, size_t io_byte)
+void process_data(unsigned char* net_buf, size_t io_byte)
 {
-	char* ptr = net_buf;
+	unsigned char* ptr = net_buf;
 	static size_t in_packet_size = 0;
 	static size_t saved_packet_size = 0;
 	static char packet_buffer[BUF_SIZE];
@@ -483,9 +493,9 @@ void process_data(char* net_buf, size_t io_byte)
 	}
 }
 
-void deleteObject()
+void deleteWidgetObject()
 {
-	Buttons.erase(remove_if(Buttons.begin(), Buttons.end(), [](Button* t) {
+	Widgets.erase(remove_if(Widgets.begin(), Widgets.end(), [](Widget* t) {
 		StateType isdelete = t->getSType();
 		if (isdelete == StateType::deleted)
 		{
@@ -493,12 +503,12 @@ void deleteObject()
 			return true;
 		}
 		return false;
-	}),Buttons.end());
+	}), Widgets.end());
 }
 
 bool client_main()
 {
-	char net_buf[BUF_SIZE];
+	unsigned char net_buf[BUF_SIZE];
 	size_t	received;
 
 	auto recv_result = socket.receive(net_buf, BUF_SIZE, received);
@@ -584,70 +594,15 @@ bool client_main()
 	mLevel.setString(buf);
 	g_window->draw(mLevel);
 
-	for (auto& button : Buttons)
+	
+	for (auto& widget : Widgets)
 	{
-		//button->Draw(*g_window);
+		widget->Draw(*g_window);
 	}
-
-	for (auto& dlg : Dialogs)
-	{
-		dlg->Draw(*g_window);
-	}
-
-	deleteObject();
+	deleteWidgetObject();
 
 
 	return true;
-}
-
-void send_attack_packet()
-{
-	cs_packet_attack packet;
-	packet.size = sizeof(packet);
-	packet.type = CS_PACKET_ATTACK;
-	size_t sent = 0;
-	socket.send(&packet, sizeof(packet), sent);
-}
-
-
-void send_npc_packet()
-{
-	cs_packet_npc_interact packet;
-	packet.size = sizeof(packet);
-	packet.type = CS_PACKET_NPC_INTERACT;
-	size_t sent = 0;
-	socket.send(&packet, sizeof(packet), sent);
-}
-
-void send_npc_packet_response(char res)
-{
-	cs_packet_npc_response packet;
-	packet.size = sizeof(packet);
-	packet.type = CS_PACKET_NPC_RESPONSE;
-	packet.response = res;
-	size_t sent = 0;
-	socket.send(&packet, sizeof(packet), sent);
-}
-
-void send_move_packet(char dr)
-{
-	cs_packet_move packet;
-	packet.size = sizeof(packet);
-	packet.type = CS_PACKET_MOVE;
-	packet.direction = dr;
-	size_t sent = 0;
-	socket.send(&packet, sizeof(packet), sent);
-}
-
-void send_login_packet(string& name, string& pw)
-{
-	cs_packet_login packet;
-	packet.size = sizeof(packet);
-	packet.type = CS_PACKET_LOGIN;
-	strcpy_s(packet.name, name.c_str());
-	strcpy_s(packet.pw, pw.c_str());
-	size_t sent = 0;
-	socket.send(&packet, sizeof(packet), sent);
 }
 
 int main()
@@ -695,18 +650,30 @@ int main()
 			switch (event.type)
 			{
 			case sf::Event::MouseButtonPressed: {
-				for (auto& b : Buttons)
-					b->checkClickButtonDown(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				for (auto& w : Widgets)
+				{
+					auto b = dynamic_cast<Button*>(w);
+					if(b)
+						b->checkClickButtonDown(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				}
 				break;
 			}
 			case sf::Event::MouseButtonReleased: {
-				for (auto& b : Buttons)
-					b->checkClickButtonUp(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				for (auto& w : Widgets)
+				{
+					auto b = dynamic_cast<Button*>(w);
+					if (b)
+						b->checkClickButtonUp(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				}
 				break;
 			}
 			case sf::Event::MouseMoved:{
-				for (auto& b : Buttons)
-					b->checkHoverOut(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				for (auto& w : Widgets)
+				{
+					auto b = dynamic_cast<Button*>(w);
+					if (b)
+						b->checkHoverOut(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+				}
 				break;
 			}
 			}
@@ -729,7 +696,7 @@ int main()
 					direction = 1;
 					break;
 				case sf::Keyboard::Num5:
-					Buttons[0]->Destroy();
+					//Buttons[0]->Destroy();
 					break;
 				case sf::Keyboard::A:
 					send_attack_packet();

@@ -4,9 +4,9 @@
 #include <iostream>
 Button::Button(sf::Texture* normal, sf::Texture* clicked, std::string words, sf::Vector2f location, sf::Font& font,ButtonType type, Dialog* dlg):
     mBType(type),
-    mSType(StateType::disable),
     pDlg(dlg)
 {
+    mSType = StateType::disable;
     this->normal.setTexture(*normal);
     this->normal.setScale(0.2, 0.1);
     this->normal.setPosition(location);
@@ -48,8 +48,8 @@ void Button::checkClickButtonDown(const sf::Vector2i& mousePos) {
 void Button::checkClickButtonUp(const sf::Vector2i& mousePos)
 {
     if (mSType != StateType::enable) return;
-    if (mousePos.x > currentSpr->getPosition().x && mousePos.x < (currentSpr->getPosition().x + currentSpr->getTextureRect().width)) {
-        if (mousePos.y > currentSpr->getPosition().y && mousePos.y < (currentSpr->getPosition().y + currentSpr->getTextureRect().height)) {
+    if (mousePos.x > currentSpr->getPosition().x && mousePos.x < (currentSpr->getPosition().x + currentSpr->getTextureRect().width * currentSpr->getScale().x)) {
+        if (mousePos.y > currentSpr->getPosition().y && mousePos.y < (currentSpr->getPosition().y + currentSpr->getTextureRect().height * currentSpr->getScale().y)) {
             setState(false);
             ButtonPush();
         }
@@ -58,8 +58,8 @@ void Button::checkClickButtonUp(const sf::Vector2i& mousePos)
 void Button::checkHoverOut(const sf::Vector2i& mousePos)
 {
     if (!current) return;
-    if (mousePos.x > currentSpr->getPosition().x && mousePos.x < (currentSpr->getPosition().x + currentSpr->getTextureRect().width)) {
-        if (mousePos.y > currentSpr->getPosition().y && mousePos.y < (currentSpr->getPosition().y + currentSpr->getTextureRect().height)) {
+    if (mousePos.x > currentSpr->getPosition().x && mousePos.x < (currentSpr->getPosition().x + currentSpr->getTextureRect().width * currentSpr->getScale().x)) {
+        if (mousePos.y > currentSpr->getPosition().y && mousePos.y < (currentSpr->getPosition().y + currentSpr->getTextureRect().height * currentSpr->getScale().y)) {
             return;
         }
     }
@@ -94,10 +94,7 @@ void Button::ConnectFunc(bhandler func)
 bool Button::getVar() {
     return current;
 }
-StateType Button::getSType()
-{
-    return mSType;
-}
+
 sf::Sprite* Button::getSprite() {
     return currentSpr;
 }
@@ -110,8 +107,5 @@ void Button::ButtonPush()
 {
     if (OnPress)
         OnPress(this);
-
-    if (pDlg != nullptr)
-        pDlg->NextDlg();
 
 }

@@ -33,6 +33,12 @@
     <ClCompile Include="Dialog.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Widget.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess2.png">
@@ -287,6 +293,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Dialog.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Widget.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

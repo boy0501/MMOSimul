@@ -28,7 +28,7 @@ vector<int> CSection[20][20];
 std::mutex section_lock[20][20];
 CRITICAL_SECTION db_cs;
 
-WSA_OVER_EX::WSA_OVER_EX(COMMAND_IOCP cmd, char bytes, void* msg)
+WSA_OVER_EX::WSA_OVER_EX(COMMAND_IOCP cmd, unsigned char bytes, void* msg)
 	: _cmd(cmd)
 {
 	
@@ -203,13 +203,15 @@ void send_chat_packet(int player_id, int chatCharacter_id, void* msg)
 	player->sendPacket(&packet, sizeof(packet));
 }
 
-void send_npc_packet(int player_id,int npc_id)
+void send_npc_dialog_packet(int player_id,int npc_id, char dlg_type, void* msg)
 {
 	auto player = reinterpret_cast<Player*>(characters[player_id]);
-	sc_packet_npc packet;
+	sc_packet_npc_dialog packet;
 	packet.size = sizeof(packet);
-	packet.type = SC_PACKET_NPC;
-	packet.id = npc_id;
+	packet.type = SC_PACKET_NPC_DIALOG;
+	packet.npc_id = npc_id;
+	packet.dlgtype = dlg_type;
+	strcpy_s(packet.msg, 200, (char*)msg);
 	player->sendPacket(&packet, sizeof(packet));
 }
 
@@ -901,7 +903,7 @@ void process_packet(int client_id, unsigned char* p)
 		npc->lua_lock.unlock();
 
 
-		send_npc_packet(client_id, npc_id);
+		//send_npc_packet(client_id, npc_id);
 		break;
 	}
 	case CS_PACKET_NPC_RESPONSE: {
@@ -930,7 +932,7 @@ void process_packet(int client_id, unsigned char* p)
 			lua_pop(L, 1);
 		}
 		npc->lua_lock.unlock();
-		send_npc_packet(client_id, npc_id);
+		//send_npc_packet(client_id, npc_id);
 		break;
 	}
 	}

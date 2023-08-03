@@ -69,8 +69,9 @@ void WorkerThread()
 			break;
 		}
 		case CMD_SEND: {
-			//if (num_byte != wsa_ex->_wsa_buf.len) {
-			//	Disconnect(client_id);
+			//if (bytes != wsa_ex->getWsaBuf().len) {
+			//	cout << " hacked\n";
+			//	//Disconnect(client_id);
 			//}
 			delete wsa_ex;
 			break;
