@@ -207,6 +207,7 @@
     <None Include="Script\monster3.lua" />
     <None Include="Script\monster4.lua" />
     <None Include="Script\NPC0001.lua" />
+    <None Include="Script\NPC0002.lua" />
     <None Include="Script\Sector1Stone.lua" />
     <None Include="Script\Sector2Stone.lua" />
     <None Include="Script\Sector3Stone.lua" />

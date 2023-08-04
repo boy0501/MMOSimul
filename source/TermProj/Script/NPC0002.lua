@@ -55,7 +55,7 @@ end
 
 --그저 코루틴 덩어리 함수 
 interactfunc = function(player)
-    local ret = Npc.API_NoticeWindowOK(myid,player,"Test Conversation");
+    local ret = Npc.API_NoticeWindowOK(myid,player,"Hi i am nimus Can you Hear my Story?");
 
     if(ret == 0) then
         API_NoticeWindow(myid,player, "You Push No Button");
@@ -64,7 +64,9 @@ interactfunc = function(player)
     else 
         API_NoticeWindow(myid,player, "err ");
     end
-    API_NoticeWindow(myid,player, "zz hi ");
+    API_NoticeWindow(myid,player, "Adding Text");
+    API_NoticeWindow(myid,player, "Adding Text two");
+    API_NoticeWindow(myid,player, "Adding Threee");
 
     Npc.API_NoticeWindowOK(myid,player,"Test Conversation Two");
     

@@ -1,0 +1,3 @@
+scriptname,x,y,npc_name
+NPC0001.lua,20,20,novis
+NPC0002.lua,30,30,nimus

@@ -171,5 +171,6 @@
     <None Include="Script\Sector3Stone.lua" />
     <None Include="Script\NPC0001.lua" />
     <None Include="Script\NPCHelper.lua" />
+    <None Include="Script\NPC0002.lua" />
   </ItemGroup>
 </Project>

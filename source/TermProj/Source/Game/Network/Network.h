@@ -12,6 +12,7 @@ const int RANGE = 7;
 void error_display(int err_no);
 void Disconnect(int _id);
 int Generate_Id();
+void NPC_LOAD();
 void InitNPC();
 void InitMAP();
 void push_queue(int player_id);

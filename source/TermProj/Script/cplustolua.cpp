@@ -35,6 +35,7 @@ int CPP_AutoMoveNPC(lua_State* L)
 	return 0;
 }
 
+
 int CPP_SendMessage(lua_State* L)
 {
 	//대상에게 메시지 보냄.

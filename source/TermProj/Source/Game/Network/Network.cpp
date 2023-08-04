@@ -2,6 +2,7 @@
 #include <fstream>
 #include <random>
 #include <algorithm>
+#include <fstream>
 #include "Network.h"
 #include "../Object/Character/Character.h"
 #include "../Object/Character/Player/Player.h"
@@ -938,6 +939,69 @@ void process_packet(int client_id, unsigned char* p)
 	}
 }
 
+void parsecsv(string str,vector<string>& out)
+{
+	out.clear();
+	string word;
+	for (auto& c : str)
+	{
+		if (c == ',' || c == '\n')
+		{
+			out.push_back(word);
+			word.clear();
+		}
+		else {
+			word += c;
+		}
+	}
+	out.push_back(word);
+}
+
+void NPC_LOAD()
+{
+	fstream is;
+	int npci = CONVNPC_ID_START;
+	is.open("Script/NPC.CSV");
+	string buf,srtname,name,npcx,npcy;
+	vector<string> tmp;
+	if (is.fail())
+	{
+		cout << "파일열기실패\n 실패파일명: Script/NPC.CSV\n";
+		return;
+	}
+	getline(is, buf);
+	while (!is.eof())
+	{
+		getline(is, buf);
+		if (buf.empty()) break;
+		parsecsv(buf, tmp);
+		srtname = tmp[0];
+		npcx = tmp[1];
+		npcy = tmp[2];
+		name = tmp[3];
+		{
+			ConvNpc* npc = new ConvNpc(srtname.c_str(), npci);
+			npc->_id = npci;
+			npc->_state = Character::STATE::ST_INGAME;
+			npc->x = atoi(npcx.c_str());
+			npc->y = atoi(npcy.c_str());
+			strcpy_s(npc->name, name.c_str());
+
+			characters[npci] = npc;
+			CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(npci);
+			npc->SpawnNPC();
+		}
+		npci++;
+	}
+
+	for (int i = npci; i <= CONVNPC_ID_END; ++i) {
+
+		ConvNpc* npc = new ConvNpc("NPC0001.lua", i);
+		npc->_id = i;
+		npc->_state = Character::STATE::ST_FREE;
+		characters[i] = npc;
+	}
+}
 
 
 void InitNPC()
@@ -977,33 +1041,35 @@ void InitNPC()
 		characters[i] = npc;
 		CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
 	}
-	{
-		ConvNpc* npc = new ConvNpc("0001.lua", CONVNPC_ID_START);
-		npc->_id = CONVNPC_ID_START;
-		npc->_state = Character::STATE::ST_INGAME;
-		characters[CONVNPC_ID_START] = npc;
-		npc->SpawnNPC();
-		CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(CONVNPC_ID_START);
-	}
-	for (int i = CONVNPC_ID_START + 1; i <= CONVNPC_ID_END; ++i) {
 
-		ConvNpc* npc = new ConvNpc("0001.lua", i);
-		npc->_id = i;
-		npc->_state = Character::STATE::ST_FREE;
-		characters[i] = npc;
-
-		//ConvNpc* npc;
-		//
-		//npc->SpawnNPC();
-		//
-		//npc->_id = i;
-		////npc->maxhp = 20;
-		//npc->hp = npc->maxhp;
-		//npc->_state = Character::STATE::ST_INGAME;
-		//
-		//characters[i] = npc;
-		//CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
-	}
+	NPC_LOAD();
+	//{
+	//	ConvNpc* npc = new ConvNpc("0001.lua", CONVNPC_ID_START);
+	//	npc->_id = CONVNPC_ID_START;
+	//	npc->_state = Character::STATE::ST_INGAME;
+	//	characters[CONVNPC_ID_START] = npc;
+	//	npc->SpawnNPC();
+	//	CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(CONVNPC_ID_START);
+	//}
+	//for (int i = CONVNPC_ID_START + 1; i <= CONVNPC_ID_END; ++i) {
+	//
+	//	ConvNpc* npc = new ConvNpc("0001.lua", i);
+	//	npc->_id = i;
+	//	npc->_state = Character::STATE::ST_FREE;
+	//	characters[i] = npc;
+	//
+	//	//ConvNpc* npc;
+	//	//
+	//	//npc->SpawnNPC();
+	//	//
+	//	//npc->_id = i;
+	//	////npc->maxhp = 20;
+	//	//npc->hp = npc->maxhp;
+	//	//npc->_state = Character::STATE::ST_INGAME;
+	//	//
+	//	//characters[i] = npc;
+	//	//CSection[(int)(npc->y / 100)][(int)(npc->x / 100)].push_back(i);
+	//}
 
 	cout << "NPC Setting is Done" << endl;
 }

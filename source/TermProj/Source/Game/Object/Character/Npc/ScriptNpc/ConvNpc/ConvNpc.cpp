@@ -9,7 +9,7 @@ ConvNpc::ConvNpc(const char* scriptname, int n_id)
 	imageType = OBJECT_ANGRYMONSTER;
 	L = luaL_newstate();
 	luaL_openlibs(L);
-	string mScriptname{ "Script/NPC" };
+	string mScriptname{ "Script/" };
 	mScriptname += scriptname;
 	int error = luaL_loadfile(L, mScriptname.c_str()) || lua_pcall(L, 0, 0, 0);
 	if (error != 0)
