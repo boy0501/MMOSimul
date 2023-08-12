@@ -15,6 +15,8 @@ int Login(const char* name, const char* pw, LoginInfo& p_info);
 int MakeCharacterAndLogin(const char* name,const char* pw, LoginInfo& p_info);
 void SavePos(const char* name, int x, int y);
 void SaveStatus(const char* name, short hp, short maxhp, short level, short exp,short x, short y);
+int AcceptQuest(const char* name, int q_code);
+int ChangeQuestProperty(const char* name, int q_code, int q_progress);
 
 class PrepareStatement {
 	MYSQL* mMysql;

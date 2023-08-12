@@ -581,6 +581,50 @@ void SaveStatus(const char* name, short hp, short maxhp, short level, short exp,
 	return ;
 }
 
+int AcceptQuest(const char* name, int q_code)
+{
+
+	char questquery[1024];
+	MYSQL_RES* result{};
+	MYSQL_ROW row;
+	sprintf_s(questquery, 1024, "call accept_quest('%s',%d)", name, q_code);
+	
+	if (mysql_query(hmysql, questquery))
+	{
+		cout << "Accept Quest Fail" << endl;
+		fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+		return -1;
+	}
+
+	if (mysql_next_result(hmysql) >= 0)
+		fprintf(stderr, "more result or error\n");
+
+
+	cout << name << "플레이어 퀘스트:" << q_code << "수주\n";
+	return 1;
+}
+
+int ChangeQuestProperty(const char* name, int q_code, int q_progress)
+{
+	char questquery[1024];
+	MYSQL_RES* result{};
+	MYSQL_ROW row;
+	sprintf_s(questquery, 1024, "call change_qproperty('%s',%d,%d)", name, q_code, q_progress);
+
+	if (mysql_query(hmysql, questquery))
+	{
+		cout << "Change Quest Property Fail" << endl;
+		fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+		return -1;
+	}
+
+	if (mysql_next_result(hmysql) >= 0)
+		fprintf(stderr, "more result or error\n");
+
+
+	return 1;
+}
+
 PrepareStatement::PrepareStatement(MYSQL* sql)
 	:mAffectRowCnt(0)
 	, mQueryType(0)
