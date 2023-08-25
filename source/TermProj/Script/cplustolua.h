@@ -22,3 +22,6 @@ int CPP_BossDeBuff(lua_State* L);
 int CPP_BossBuffMySight(lua_State* L);
 int CPP_NoticeWindow(lua_State* L);
 int CPP_NoticeWindowOK(lua_State* L);
+int CPP_QuestAccept(lua_State* L);
+int CPP_GetQuestProgress(lua_State* L);
+int CPP_QuestProgressChange(lua_State* L);

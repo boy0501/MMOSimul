@@ -55,6 +55,12 @@ end
 
 --그저 코루틴 덩어리 함수 
 interactfunc = function(player)
+    qcode = API_GetQuestProgress(player,1); --플레이어 id , Quest Code
+    if(1 == qcode) then
+        API_QuestProgressChange(player,1, 101);
+        API_NoticeWindow(myid,player,"Find Novis");
+    end
+
     local ret = Npc.API_NoticeWindowOK(myid,player,"Hi i am nimus Can you Hear my Story?");
 
     if(ret == 0) then

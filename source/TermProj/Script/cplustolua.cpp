@@ -864,3 +864,58 @@ int CPP_NoticeWindowOK(lua_State* L)
 
 	return 0;
 }
+
+int CPP_QuestAccept(lua_State* L)
+{
+
+	int player_id = (int)lua_tointeger(L, -2);
+	int q_code = (int)lua_tointeger(L, -1);
+
+	lua_pop(L, 3);
+
+	auto player = dynamic_cast<Player*>(characters[player_id]);
+
+	if(nullptr != player)
+		AcceptQuest(player->name, q_code);
+
+	cout << "퀘스트 코드" << q_code << "수주" << endl;
+	return 0;
+}
+
+int CPP_GetQuestProgress(lua_State* L)
+{
+
+	int player_id = (int)lua_tointeger(L, -2);
+	int q_code = (int)lua_tointeger(L, -1);
+
+	lua_pop(L, 3);
+
+	auto player = dynamic_cast<Player*>(characters[player_id]);
+	QuestInfo q_info{};
+
+	if (nullptr != player)
+		GetQuestProperty(player->name, q_code, q_info);
+	lua_pushinteger(L, q_info.q_progress);
+
+	cout << "퀘스트명: ";
+	wcout << q_info.q_desc;
+	cout << "의 진행도 :" << q_info.q_progress << endl;
+
+	return 1;
+}
+
+int CPP_QuestProgressChange(lua_State* L)
+{
+	int player_id = (int)lua_tointeger(L, -3);
+	int q_code = (int)lua_tointeger(L, -2);
+	int q_progress = (int)lua_tointeger(L, -1);
+
+	lua_pop(L, 4);
+
+	auto player = dynamic_cast<Player*>(characters[player_id]);
+	if (nullptr != player)
+		ChangeQuestProperty(player->name, q_code,q_progress);
+
+	cout << "퀘스트 코드" << q_code << "의 진행도 : 변환" << endl;
+	return 0;
+}

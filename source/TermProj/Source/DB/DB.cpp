@@ -386,6 +386,7 @@ void InitializeDB()
 	else
 	{
 		cout << "DB Connection Success" << endl;
+		mysql_set_character_set(hmysql, "euckr");
 		pstmtExample(hmysql);
 	}
 }
@@ -623,6 +624,54 @@ int ChangeQuestProperty(const char* name, int q_code, int q_progress)
 
 
 	return 1;
+}
+
+int GetQuestProperty(const char* name, int q_code,QuestInfo& q_info)
+{
+	char questquery[1024];
+	MYSQL_RES* result{};
+	MYSQL_ROW row;
+	sprintf_s(questquery, 1024, "call get_qproperty('%s',%d)", name, q_code);
+
+	if (mysql_query(hmysql, questquery))
+	{
+		cout << "try login Fail" << endl;
+		fprintf(stderr, "Error %d\n%s", mysql_errno(hmysql), mysql_error(hmysql));
+		return -1;
+	}
+	// Get Response
+	result = mysql_store_result(hmysql);
+	//cout << mysql_affected_rows(hmysql) << endl;
+	if (mysql_affected_rows(hmysql) == 1)
+	{
+		MYSQL_FIELD* field;
+		field = mysql_fetch_fields(result);
+		int fields = mysql_num_fields(result);    // 필드 갯수 구함
+		row = mysql_fetch_row(result);     // 모든 레코드 탐색 실패시 NULL반환 while 탈출
+
+		q_info.q_code = atoi(row[0]);
+		q_info.q_progress = atoi(row[1]);
+		MultiByteToWideChar(CP_ACP, 0, row[2], strlen(row[2]) + 1, q_info.q_desc, 40);
+		mysql_free_result(result);
+
+
+		if (mysql_next_result(hmysql) >= 0)
+		{
+			errcheck(hmysql);
+		}
+
+
+		return 1;				//퀘스트 정보 받기 성공 
+	}
+	else {
+
+		if (mysql_next_result(hmysql) >= 0)
+		{
+			errcheck(hmysql);
+		}
+		return -1;				//퀘스트 정보 받기 실패 
+	}
+	return 0;
 }
 
 PrepareStatement::PrepareStatement(MYSQL* sql)

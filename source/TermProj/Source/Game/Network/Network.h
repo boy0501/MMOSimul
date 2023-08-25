@@ -91,4 +91,11 @@ struct LoginInfo {
 	short p_exp;
 };
 
+struct QuestInfo {
+	int q_code;
+	int q_progress;
+	WCHAR q_desc[40];
+};
+
+
 extern concurrency::concurrent_priority_queue <Timer_Event> timer_queue;

@@ -66,7 +66,17 @@ interactfunc = function(player)
     end
     API_NoticeWindow(myid,player, "zz hi ");
 
-    Npc.API_NoticeWindowOK(myid,player,"Test Conversation Two");
+    ret = Npc.API_NoticeWindowOK(myid,player,"Quest Accept");
+    if(1 == ret) then
+        API_QuestAccept(player,1);      --플레이어 id, Quest code
+        --qcode = API_GetQuestProgress(player,1); --플레이어 id , Quest Code
+        --if(1 == qcode) then
+        --    API_QuestProgressChange(player,1, 101);
+        --    API_NoticeWindow(myid,player,"Find Novis");
+        --end
+    elseif(0 == ret) then
+        API_NoticeWindow(myid,player,"Ok,,, Bye");
+    end
     
 end
 
