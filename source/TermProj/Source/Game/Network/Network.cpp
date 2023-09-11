@@ -137,7 +137,7 @@ void send_login_ok_packet(int player_id)
 	packet.type = SC_PACKET_LOGIN_OK;
 	packet.x = characters[player_id]->x;
 	packet.y = characters[player_id]->y;
-	packet.exp = player->exp;
+	packet.exp = player->mExp;
 	packet.hp = player->hp;
 	packet.maxhp = player->maxhp;
 	packet.level = player->level;
@@ -245,7 +245,7 @@ void send_status_change_packet(int player_id)
 	sc_packet_status_change packet;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_STATUS_CHANGE;
-	packet.exp = player->exp;
+	packet.exp = player->mExp;
 	packet.hp = player->hp;
 	packet.level = player->level;
 	packet.maxhp = player->maxhp;
@@ -330,7 +330,7 @@ void process_packet(int client_id, unsigned char* p)
 		player->x = p_info.p_x;
 		player->y = p_info.p_y;
 		player->level = p_info.p_level;
-		player->exp = p_info.p_exp;
+		player->mExp = p_info.p_exp;
 		player->hp = p_info.p_hp;
 		player->maxhp = p_info.p_maxhp;
 		//-------------------------------------add

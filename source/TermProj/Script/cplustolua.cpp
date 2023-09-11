@@ -127,25 +127,10 @@ int CPP_MonsterDie(lua_State* L)
 	Monster* npc = reinterpret_cast<Monster*>(characters[npc_id]);
 	cout << "[log] monster[" << npc_id << "] die!" << endl;
 
-	int playerMaxExp = pow(2, player->level) * 100;
 	int exp = npc->RewardEXP();
-	player->exp += exp;
-	char buf[MAX_CHAT_SIZE];
-	sprintf_s(buf, "몬스터 %s를 무찔러서 %d의 경험치 획득!", npc->name, exp);
+	cout << exp << endl;
+	player->GainExp(exp);
 
-	send_log_packet(player_id, buf);
-	if (player->exp >= playerMaxExp)
-	{
-		player->level += 1;
-		player->maxhp = player->maxhp * 1.3 + 10;
-		player->hp = player->maxhp;
-		player->exp = 0;
-		char logMsg[MAX_CHAT_SIZE];
-		sprintf_s(logMsg, "Level Up!");
-		send_log_packet(player_id, logMsg);
-		//levelup!
-	}
-	send_status_change_packet(player_id);
 	unordered_set <int> nearlist;
 	for (auto c : characters)
 	{
@@ -242,7 +227,7 @@ int CPP_MonsterAttack(lua_State* L)
 
 
 			player->hp = player->maxhp;
-			player->exp /= 2;
+			player->mExp /= 2;
 			//
 			send_move_packet(player_id, player_id);
 
@@ -917,5 +902,20 @@ int CPP_QuestProgressChange(lua_State* L)
 		ChangeQuestProperty(player->name, q_code,q_progress);
 
 	cout << "퀘스트 코드" << q_code << "의 진행도 : 변환" << endl;
+	return 0;
+}
+
+int CPP_GiveExp(lua_State* L)
+{
+	int player_id = (int)lua_tointeger(L, -2);
+	int exp = (int)lua_tointeger(L, -1);
+	lua_pop(L, 3);
+
+
+	auto player = dynamic_cast<Player*>(characters[player_id]);
+	if (nullptr == player) return 0;
+
+	player->GainExp(exp);
+
 	return 0;
 }

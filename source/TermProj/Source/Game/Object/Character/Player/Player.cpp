@@ -35,7 +35,7 @@ void Player::recvPacket()
 		int err = WSAGetLastError();
 		if (ERROR_IO_PENDING != err)
 		{
-				
+
 			//cout << "플레이어 리시브 save" << "player name :" << name << endl;
 
 			error_display(err);
@@ -55,6 +55,36 @@ void Player::sendPacket(void* packet, int bytes)
 
 			error_display(err);
 		}
+	}
+}
+
+void Player::GainExp(int exp)
+{
+	mExp += exp;
+
+	int playerMaxExp = pow(2, level) * 100;
+	if (mExp >= playerMaxExp)
+		LevelUp(mExp);
+
+	send_status_change_packet(_id);
+}
+
+void Player::LevelUp(int remainExp)
+{
+	while (true)
+	{
+		int playerMaxExp = pow(2, level) * 100;
+		level += 1;
+		maxhp = maxhp * 1.3 + 10;
+		hp = maxhp;
+		remainExp -= playerMaxExp;
+		mExp = remainExp;
+		char logMsg[MAX_CHAT_SIZE];
+		sprintf_s(logMsg, "Level Up!");
+		send_log_packet(_id, logMsg);
+		//levelup!
+		if (remainExp <= playerMaxExp)
+			break;
 	}
 }
 

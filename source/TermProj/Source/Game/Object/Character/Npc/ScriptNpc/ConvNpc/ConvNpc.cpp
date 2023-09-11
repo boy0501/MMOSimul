@@ -81,6 +81,7 @@ ConvNpc::ConvNpc(const char* scriptname, int n_id)
 	lua_register(L, "API_QuestAccept", CPP_QuestAccept);
 	lua_register(L, "API_GetQuestProgress", CPP_GetQuestProgress);
 	lua_register(L, "API_QuestProgressChange", CPP_QuestProgressChange);
+	lua_register(L, "API_GiveExp", CPP_GiveExp);
 }
 
 ConvNpc::~ConvNpc()

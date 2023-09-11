@@ -25,3 +25,4 @@ int CPP_NoticeWindowOK(lua_State* L);
 int CPP_QuestAccept(lua_State* L);
 int CPP_GetQuestProgress(lua_State* L);
 int CPP_QuestProgressChange(lua_State* L);
+int CPP_GiveExp(lua_State* L);

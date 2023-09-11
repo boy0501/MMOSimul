@@ -17,10 +17,10 @@ public:
 	int		last_move_time;
 	char moveSaveCnt;
 	
-	int exp;
+	int mExp;
 	void recvPacket();
 	void sendPacket(void* packet, int bytes);
-
+	void GainExp(int exp);
 
 
 	//게터
@@ -30,7 +30,11 @@ public:
 	//세터
 	void SetInteractNPC(int InteractNPC) { mInteractNPC = InteractNPC; }
 
+private:
+	void LevelUp(int remainExp);
+
 protected:
 	int mInteractNPC;	//현재 대화중인 NPC code -1 = 대화하고 있지 않은 상태
+
 };
 

@@ -58,24 +58,8 @@ interactfunc = function(player)
     qcode = API_GetQuestProgress(player,1); --플레이어 id , Quest Code
     if(1 == qcode) then
         API_QuestProgressChange(player,1, 101);
-        API_NoticeWindow(myid,player,"Find Novis");
-    end
-
-    local ret = Npc.API_NoticeWindowOK(myid,player,"Hi i am nimus Can you Hear my Story?");
-
-    if(ret == 0) then
-        API_NoticeWindow(myid,player, "You Push No Button");
-    elseif(ret == 1) then
-        API_NoticeWindow(myid,player, "You Push Yes button");
-    else 
-        API_NoticeWindow(myid,player, "err ");
-    end
-    API_NoticeWindow(myid,player, "Adding Text");
-    API_NoticeWindow(myid,player, "Adding Text two");
-    API_NoticeWindow(myid,player, "Adding Threee");
-
-    Npc.API_NoticeWindowOK(myid,player,"Test Conversation Two");
-    
+        API_NoticeWindow(myid,player,"Nah,,,, Find Novis Bro");
+    end    
 end
 
 --클릭시 불리는 함수 (필수)

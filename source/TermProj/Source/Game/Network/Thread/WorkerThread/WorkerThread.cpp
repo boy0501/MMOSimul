@@ -29,7 +29,7 @@ void WorkerThread()
 				//플레이어 정상 접속 종료 요청시에만 save / 서버에서 강제 disconn 할때는 save하지 않음. 
 				Player* player = reinterpret_cast<Player*>(characters[client_id]);
 				EnterCriticalSection(&db_cs);
-				SaveStatus(player->name, player->hp, player->maxhp, player->level, player->exp, player->x, player->y);
+				SaveStatus(player->name, player->hp, player->maxhp, player->level, player->mExp, player->x, player->y);
 				LeaveCriticalSection(&db_cs);
 				cout << "GQCS player name :" << player->name << endl;
 			}
@@ -295,7 +295,7 @@ void WorkerThread()
 				delete wsa_ex;
 				break;
 			}
-			SaveStatus(player->name, player->hp, player->maxhp, player->level, player->exp, player->x, player->y);
+			SaveStatus(player->name, player->hp, player->maxhp, player->level, player->mExp, player->x, player->y);
 			random_device rd;
 			mt19937 rng(rd());
 			uniform_int_distribution<int> timing(300, 600);

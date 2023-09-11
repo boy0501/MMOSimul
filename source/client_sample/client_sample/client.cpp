@@ -31,8 +31,8 @@ using namespace std;
 
 
 constexpr auto BUF_SIZE = 256;
-constexpr auto SCREEN_WIDTH = 17;
-constexpr auto SCREEN_HEIGHT = 17;
+constexpr auto SCREEN_WIDTH = 15;
+constexpr auto SCREEN_HEIGHT = 15;
 
 constexpr auto TILE_WIDTH = 65;
 constexpr auto WINDOW_WIDTH = TILE_WIDTH * SCREEN_WIDTH + 10;   // size of window
@@ -443,13 +443,13 @@ void ProcessPacket(char* ptr)
 		}
 		else {
 			sf::Vector2f dlgpos = sf::Vector2f(0, 700);
-			Button* b1 = new Button(Bimg, Bdownimg, "yes", dlgpos + sf::Vector2f(850, 250), g_font, ButtonType::yes);
+			Button* b1 = new Button(Bimg, Bdownimg, "yes", dlgpos + sf::Vector2f(700, 230), g_font, ButtonType::yes);
 			Widgets.push_back(b1);
 
-			Button* b2 = new Button(Bimg, Bdownimg, "no", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::no);
+			Button* b2 = new Button(Bimg, Bdownimg, "no", dlgpos + sf::Vector2f(850, 230), g_font, ButtonType::no);
 			Widgets.push_back(b2);
 
-			Button* b3 = new Button(Bimg, Bdownimg, "next", dlgpos + sf::Vector2f(1000, 250), g_font, ButtonType::next);
+			Button* b3 = new Button(Bimg, Bdownimg, "next", dlgpos + sf::Vector2f(850, 170), g_font, ButtonType::next);
 			Widgets.push_back(b3);
 
 			Dialog* d = new Dialog(Dlgimg, dlgpos,my_packet->npc_id, b1, b2, b3);

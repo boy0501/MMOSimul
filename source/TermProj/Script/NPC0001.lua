@@ -57,27 +57,28 @@ end
 interactfunc = function(player)
     local ret = Npc.API_NoticeWindowOK(myid,player,"Test Conversation");
 
-    if(ret == 0) then
-        API_NoticeWindow(myid,player, "You Push No Button");
-    elseif(ret == 1) then
-        API_NoticeWindow(myid,player, "You Push Yes button");
-    else 
-        API_NoticeWindow(myid,player, "err ");
-    end
     API_NoticeWindow(myid,player, "zz hi ");
-
-    ret = Npc.API_NoticeWindowOK(myid,player,"Quest Accept");
-    if(1 == ret) then
-        API_QuestAccept(player,1);      --플레이어 id, Quest code
-        --qcode = API_GetQuestProgress(player,1); --플레이어 id , Quest Code
-        --if(1 == qcode) then
-        --    API_QuestProgressChange(player,1, 101);
-        --    API_NoticeWindow(myid,player,"Find Novis");
-        --end
-    elseif(0 == ret) then
-        API_NoticeWindow(myid,player,"Ok,,, Bye");
-    end
     
+    qcode = API_GetQuestProgress(player,1); --플레이어 id , Quest Code
+    if(0 == qcode) then
+        ret = Npc.API_NoticeWindowOK(myid,player,"Will you take my Quest?");
+        if(1 == ret) then
+            API_QuestAccept(player,1);      --플레이어 id, Quest code
+            API_NoticeWindow(myid,player,"Thank you! \n plz Find Nimus!");
+        elseif(0 == ret) then
+            API_NoticeWindow(myid,player,"Ok,,, Bye");
+        end
+    elseif(101 == qcode) then
+        ret = Npc.API_NoticeWindowOK(myid,player,"Thank you! here is my small gift");
+        if(1 == ret) then
+            API_QuestProgressChange(player,1, 10000);       --퀘스트 완료
+            API_GiveExp(player,1000);
+        elseif(0 == ret) then
+            API_NoticeWindow(myid,player,"Why are you refusing?");
+        end
+    end
+
+
 end
 
 --클릭시 불리는 함수 (필수)
