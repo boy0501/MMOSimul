@@ -214,7 +214,7 @@ int CPP_MonsterAttack(lua_State* L)
 			if ((oldsy != sy) || (oldsx != sx))
 			{
 				section_lock[oldsy][oldsx].lock();
-				CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), npc_id), CSection[oldsy][oldsx].end());
+				CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), player->_id), CSection[oldsy][oldsx].end());
 				section_lock[oldsy][oldsx].unlock();
 
 				section_lock[sy][sx].lock();
@@ -679,6 +679,7 @@ int CPP_TelePortTarget(lua_State* L)
 	//npc 순간이동.
 	npc->x = player->x;
 	npc->y = player->y;
+	cout << npc->x << "," << npc->y << endl;
 
 	for (auto obj : characters) {
 		if (obj->_state != Character::STATE::ST_INGAME)

@@ -18,3 +18,5 @@ void send_npc_packet_response(char res);
 void send_move_packet(char dr);
 
 void send_login_packet(string& name, string& pw);
+
+void send_telportcheat_packet(int x, int y);

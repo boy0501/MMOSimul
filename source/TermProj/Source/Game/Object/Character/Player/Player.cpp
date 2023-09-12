@@ -83,6 +83,7 @@ void Player::LevelUp(int remainExp)
 		sprintf_s(logMsg, "Level Up!");
 		send_log_packet(_id, logMsg);
 		//levelup!
+		playerMaxExp = pow(2, level) * 100;
 		if (remainExp <= playerMaxExp)
 			break;
 	}

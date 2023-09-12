@@ -21,7 +21,7 @@ using namespace std;
 
 HANDLE g_iocp;
 SOCKET s_socket;
-bool mMap[2000][2000];
+bool mMap[2000][2000];	//길 또는 벽
 
 concurrency::concurrent_priority_queue <Timer_Event> timer_queue;
 std::array<Character*, MAX_USER + MAX_NPC + MAX_CONVNPC> characters;
@@ -32,7 +32,7 @@ CRITICAL_SECTION db_cs;
 WSA_OVER_EX::WSA_OVER_EX(COMMAND_IOCP cmd, unsigned char bytes, void* msg)
 	: _cmd(cmd)
 {
-	
+
 	ZeroMemory(&_wsaover, sizeof(_wsaover));
 	_wsabuf.buf = reinterpret_cast<char*>(_buf);
 	_wsabuf.len = bytes;
@@ -68,7 +68,7 @@ void Disconnect(int _id)
 		if (true == target->is_Npc())
 		{
 			Monster* npc = reinterpret_cast<Monster*>(characters[other]);
-			if(npc->GetTarget() == cl->_id)
+			if (npc->GetTarget() == cl->_id)
 				npc->SetTarget(INVALID_TARGET);
 			continue;
 		}
@@ -171,7 +171,7 @@ void send_remove_object(int player_id, int removeCharacter_id)
 	player->sendPacket(&packet, sizeof(packet));
 }
 
-void send_put_object(int player_id, int putCharacter_id,int object_type)
+void send_put_object(int player_id, int putCharacter_id, int object_type)
 {
 	auto player = reinterpret_cast<Player*>(characters[player_id]);
 	sc_packet_put_object packet;
@@ -204,7 +204,7 @@ void send_chat_packet(int player_id, int chatCharacter_id, void* msg)
 	player->sendPacket(&packet, sizeof(packet));
 }
 
-void send_npc_dialog_packet(int player_id,int npc_id, char dlg_type, void* msg)
+void send_npc_dialog_packet(int player_id, int npc_id, char dlg_type, void* msg)
 {
 	auto player = reinterpret_cast<Player*>(characters[player_id]);
 	sc_packet_npc_dialog packet;
@@ -252,7 +252,7 @@ void send_status_change_packet(int player_id)
 	player->sendPacket(&packet, sizeof(packet));
 }
 
-void send_login_fail_packet(int player_id,int reason)
+void send_login_fail_packet(int player_id, int reason)
 {
 	auto player = reinterpret_cast<Player*>(characters[player_id]);
 	sc_packet_login_fail packet;
@@ -308,13 +308,14 @@ void process_packet(int client_id, unsigned char* p)
 			LeaveCriticalSection(&db_cs);
 			//로그인 실패하면 끊는게아니라, 새롭게 만들어줘야함.
 			EnterCriticalSection(&db_cs);
-			if (-1 == MakeCharacterAndLogin(packet->name,packet->pw, p_info))
+			if (-1 == MakeCharacterAndLogin(packet->name, packet->pw, p_info))
 			{
 				LeaveCriticalSection(&db_cs);
 				//여기서도 실패하면 끊어야지 뭐,,
 				Disconnect(client_id);
 				LoginFailFlag = true;
-			}else{
+			}
+			else {
 				LeaveCriticalSection(&db_cs);
 			}
 		}
@@ -422,13 +423,13 @@ void process_packet(int client_id, unsigned char* p)
 
 		auto player = reinterpret_cast<Player*>(character);
 		player->last_move_time = packet->move_time;
-		if (player->debufftype == 1) 
+		if (player->debufftype == 1)
 			break;
 
 		int x = character->x;
 		int y = character->y;
-		int oldsx = x/100;
-		int oldsy = y/100;
+		int oldsx = x / 100;
+		int oldsy = y / 100;
 		switch (packet->direction) {
 		case 0:
 			if (y > 0)
@@ -463,7 +464,7 @@ void process_packet(int client_id, unsigned char* p)
 		//SavePos(player->name, x, y, hstmt[thread_id]);
 		//Login(player->name, tmp, hstmt[thread_id]);
 		//LeaveCriticalSection(&db_cs);
-		
+
 		if ((oldsy != sy) || (oldsx != sx))
 		{
 			section_lock[oldsy][oldsx].lock();
@@ -489,11 +490,13 @@ void process_packet(int client_id, unsigned char* p)
 						continue;
 					if (false == is_Near(client_id, other))
 						continue;
+
+					
 					nearlist.insert(other);
-				}				
+				}
 			}
 		}
-		
+
 
 		//for (auto other : Sector[0])
 		//{
@@ -618,7 +621,7 @@ void process_packet(int client_id, unsigned char* p)
 					npc->state_lock.lock();
 					if (npc->_state != Character::STATE::ST_INGAME) {
 						npc->state_lock.unlock();
-						continue; 
+						continue;
 					}
 					npc->state_lock.unlock();
 
@@ -775,14 +778,14 @@ void process_packet(int client_id, unsigned char* p)
 	case CS_PACKET_TELEPORT: {
 		cs_packet_teleport* packet = reinterpret_cast<cs_packet_teleport*>(p);
 		auto player = reinterpret_cast<Player*>(character);
-		
+
 		while (1) {
 			int randx = rand() % 2000;
 			int randy = rand() % 2000;
 			if (mMap[randx][randy] == 1) continue;
 
 			//---add
-			int oldsx = player->x /100;
+			int oldsx = player->x / 100;
 			int oldsy = player->y / 100;
 			player->x = randx;
 			player->y = randy;
@@ -876,6 +879,106 @@ void process_packet(int client_id, unsigned char* p)
 
 		break;
 	}
+	case CS_PACKET_TELEPORTCHEAT: {
+		cs_packet_teleportCheat* packet = reinterpret_cast<cs_packet_teleportCheat*>(p);
+		auto player = reinterpret_cast<Player*>(character);
+
+		int telpx = packet->x;
+		int telpy = packet->y;
+
+		//---add
+		int oldsx = player->x / 100;
+		int oldsy = player->y / 100;
+		player->x = telpx;
+		player->y = telpy;
+
+		int sx = player->x / 100;	//sectionX
+		int sy = player->y / 100;	//sectionY
+
+		if ((oldsy != sy) || (oldsx != sx))
+		{
+			section_lock[oldsy][oldsx].lock();
+			CSection[oldsy][oldsx].erase(remove(CSection[oldsy][oldsx].begin(), CSection[oldsy][oldsx].end(), player->_id), CSection[oldsy][oldsx].end());
+			section_lock[oldsy][oldsx].unlock();
+
+			section_lock[sy][sx].lock();
+			CSection[sy][sx].push_back(character->_id);
+			section_lock[sy][sx].unlock();
+		}
+
+		//기존에 있던 플레이어들에게 나간다고 알려준다.
+		player->vl.lock();
+		unordered_set<int> LeaveList = player->viewlist;
+		player->viewlist.clear();
+		player->vl.unlock();
+
+		for (auto player_id : LeaveList)
+		{
+			if (characters[player_id]->is_Npc())
+			{
+				Monster* npc = reinterpret_cast<Monster*>(characters[player_id]);
+				if (npc->GetTarget() == client_id)
+				{
+					npc->SetTarget(INVALID_TARGET);	//타게팅대상이었다면 풀어준다.
+				}
+			}
+			else {
+				send_remove_object(player_id, client_id);
+			}
+		}
+
+
+		// 새로 접속한 플레이어의 정보를 주위 플레이어에게 보낸다
+		for (auto other : characters) {
+			if (other->is_Npc()) break;
+			if (other->_id == client_id) continue;
+			//if npc -> break  So, under lines other is player
+			// npc면 break했으니 이 아래부터 other는 모두 player이다.
+			auto OtherPlayer = reinterpret_cast<Player*>(other);
+			OtherPlayer->state_lock.lock();
+			if (Character::STATE::ST_INGAME != OtherPlayer->_state) {
+				OtherPlayer->state_lock.unlock();
+				continue;
+			}
+			OtherPlayer->state_lock.unlock();
+
+			if (false == is_Near(OtherPlayer->_id, client_id))
+				continue;
+
+			OtherPlayer->vl.lock();
+			OtherPlayer->viewlist.insert(client_id);
+			OtherPlayer->vl.unlock();
+
+
+			send_put_object(OtherPlayer->_id, client_id, characters[client_id]->imageType);
+		}
+
+		// 새로 접속한 플레이어에게 주위 객체 정보를 보낸다
+		for (auto other : characters) {
+			if (other->_id == client_id) continue;
+			other->state_lock.lock();
+			if (Character::STATE::ST_INGAME != other->_state) {
+				other->state_lock.unlock();
+				continue;
+			}
+			other->state_lock.unlock();
+
+			if (false == is_Near(other->_id, client_id))
+				continue;
+
+			player->vl.lock();
+			player->viewlist.insert(other->_id);
+			player->vl.unlock();
+
+
+			send_put_object(client_id, other->_id, characters[other->_id]->imageType);
+		}
+		//위에서 만든 vl정보로, vl에 npc가 있다면 queue에 넣어준다.
+		push_queue(client_id);
+
+
+		break;
+	}
 	case CS_PACKET_NPC_INTERACT: {
 		auto player = dynamic_cast<Player*>(character);
 		if (nullptr == player) break;
@@ -939,7 +1042,7 @@ void process_packet(int client_id, unsigned char* p)
 	}
 }
 
-void parsecsv(string str,vector<string>& out)
+void parsecsv(string str, vector<string>& out)
 {
 	out.clear();
 	string word;
@@ -962,7 +1065,7 @@ void NPC_LOAD()
 	fstream is;
 	int npci = CONVNPC_ID_START;
 	is.open("Script/NPC.CSV");
-	string buf,srtname,name,npcx,npcy;
+	string buf, srtname, name, npcx, npcy;
 	vector<string> tmp;
 	if (is.fail())
 	{
@@ -1024,9 +1127,9 @@ void InitNPC()
 		{
 			npc = new NormalMonster("Sector3Stone.lua", i);
 		}
-		else if(i < NPC_ID_END){
+		else if (i < NPC_ID_END) {
 			npc = new AngryMonster("monster4.lua", i);
-		
+
 		}
 		else {
 			npc = new BossMonster("bossmonster.lua", i);
@@ -1119,7 +1222,7 @@ void push_queue(int player_id)
 		//이 구문은 Peace 몬스터 일때 실행. Npc_Type으로 정해주는것.
 		switch (npc->GetMonType())
 		{
-		case MonsterType::Peace: 
+		case MonsterType::Peace:
 		{
 			//랜덤무브는 타겟이없다.
 			Timer_Event instq;
@@ -1157,7 +1260,7 @@ void push_queue(int player_id)
 				timer_queue.push(instq);
 			}
 		}
-			break;
+		break;
 		}
 
 

@@ -460,7 +460,6 @@ void ProcessPacket(char* ptr)
 			m_npcdlg[my_packet->npc_id] = d;
 		}
 
-		cout << "npc code: " << my_packet->npc_id << endl;
 		break;
 	}
 	default:
@@ -639,6 +638,8 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "2D CLIENT");
 	g_window = &window;
 
+	window.setPosition(sf::Vector2i(450, 10));
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -695,14 +696,26 @@ int main()
 				case sf::Keyboard::Down:
 					direction = 1;
 					break;
-				case sf::Keyboard::Num5:
-					//Buttons[0]->Destroy();
-					break;
 				case sf::Keyboard::A:
 					send_attack_packet();
 					break;
 				case sf::Keyboard::Num8:
 					send_npc_packet();
+					break;
+				case sf::Keyboard::Num1:
+					send_telportcheat_packet(10,10);
+					break;
+				case sf::Keyboard::Num2:
+					send_telportcheat_packet(777,1600);
+					break;
+				case sf::Keyboard::Num3:
+					send_telportcheat_packet(746,1233);
+					break;
+				case sf::Keyboard::Num4:
+					send_npc_packet_response(1);
+					break;
+				case sf::Keyboard::Num5:
+					send_npc_packet_response(1);
 					break;
 				case sf::Keyboard::Num9:
 					send_npc_packet_response(1);

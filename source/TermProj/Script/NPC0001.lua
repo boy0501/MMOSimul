@@ -72,13 +72,12 @@ interactfunc = function(player)
         ret = Npc.API_NoticeWindowOK(myid,player,"Thank you! here is my small gift");
         if(1 == ret) then
             API_QuestProgressChange(player,1, 10000);       --퀘스트 완료
+            API_NoticeWindow(myid,player, "Reward : EXP 1000 ");
             API_GiveExp(player,1000);
         elseif(0 == ret) then
             API_NoticeWindow(myid,player,"Why are you refusing?");
         end
     end
-
-
 end
 
 --클릭시 불리는 함수 (필수)

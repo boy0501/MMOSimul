@@ -43,6 +43,7 @@ const char CS_PACKET_CHAT = 4;
 const char CS_PACKET_TELEPORT = 5;
 const char CS_PACKET_NPC_RESPONSE = 6;
 const char CS_PACKET_NPC_INTERACT = 7;
+const char CS_PACKET_TELEPORTCHEAT = 8;
 
 const char CS_TEST_PACKET = 120;
 
@@ -89,6 +90,14 @@ struct cs_packet_teleport {		//서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨�
 	//더미클라에서 동접 테스트용으로 사용.
 	unsigned char size;
 	char	type;
+};
+
+struct cs_packet_teleportCheat {		//서버에서 좌표로 텔레포트 시킨다.
+	//치트용
+	unsigned char size;
+	char	type;
+	int x;
+	int y;	
 };
 
 struct cs_packet_npc_interact {

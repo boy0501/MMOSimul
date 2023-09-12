@@ -54,3 +54,14 @@ void send_login_packet(string& name, string& pw)
 	size_t sent = 0;
 	socket.send(&packet, sizeof(packet), sent);
 }
+
+void send_telportcheat_packet(int x, int y)
+{
+	cs_packet_teleportCheat packet;
+	packet.size = sizeof(packet);
+	packet.type = CS_PACKET_TELEPORTCHEAT;
+	packet.x = x;
+	packet.y = y;
+	size_t sent = 0;
+	socket.send(&packet, sizeof(packet), sent);
+}
